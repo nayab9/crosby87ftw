@@ -55,6 +55,10 @@ public class Game {
 		return playerB;
 	}
 	
+	public Player getTurn(){
+		return this.turn;
+	}
+	
 	/**
 	 * Initializes the game with random number of sets (btwn 3 and 5)
 	 * and random number of items per set (btwn 1 and 7)
