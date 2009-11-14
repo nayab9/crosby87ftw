@@ -7,7 +7,6 @@ import java.util.*;
 import justin.*;
 import april.*;
 
-
 public class Server implements Runnable
 {
 	private Socket connection;
@@ -171,8 +170,7 @@ public class Server implements Runnable
 						sendString(send, A.getSocket());
 						sendString(send, B.getSocket());
 						
-						System.out.println("PlayerA socket information to send to: " + A.getSocket().toString());
-						System.out.println("PlayerB socket information to send to: " + B.getSocket().toString());
+
 						//special output to the socket of the other player
 					}				
 					else
@@ -216,6 +214,8 @@ public class Server implements Runnable
 	
 	public void sendString(String msg, Socket socket)
 	{
+		System.out.println("Requested send to socket information to: " + socket.toString());
+	
 		PrintWriter out = null;
 		try 
 		{
