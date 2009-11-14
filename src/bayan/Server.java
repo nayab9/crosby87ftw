@@ -123,6 +123,7 @@ public class Server implements Runnable
 				else if (response[0].compareTo("login") == 0 && logged == true)
 				{
 					send = "You are already logged in." + newline;
+					sendString(send, this.connection);
 				}
 				
 				else if (response[0].compareTo("play") == 0)
