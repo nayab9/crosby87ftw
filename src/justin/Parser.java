@@ -39,7 +39,7 @@ public class Parser {
 			result[0] = "Error Incorrect Protocol!";
 		}
 	    for(int i = 0; i < result.length; i++){
-	    	System.out.print(" "+result[i]);
+	    	//System.out.print(" "+result[i]);
 	    }
 	    System.out.println();
 		return result;

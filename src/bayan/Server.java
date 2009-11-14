@@ -4,18 +4,23 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+import justin.*;
+import april.*;
+
+
 public class Server implements Runnable
 {
 	private Socket connection;
-	private String request, response;
 	private int ID;
+	//global arraylist for players, volatile so that it is synchronized
+	public static volatile ArrayList<Player> playerList = new ArrayList<Player>();
 	
 	public static void main(String[] args)
 	{
-		//port provided via command line
+		//port provided via command line later
 		//int port = Integer.parseInt(args[0]);
 		
-		//hardcoded port
+		//hardcoded port for now
 		int port = 8787;
 		
 		//variable to increment thread identity
@@ -54,28 +59,89 @@ public class Server implements Runnable
 		{
 			BufferedReader inFromClient = 
 				new BufferedReader(new InputStreamReader(connection.getInputStream())); 
-			DataOutputStream outToClient = 
-				new DataOutputStream(connection.getOutputStream()); 
+			PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 			
-			// read a line from the input stream
-			request = inFromClient.readLine();
+			String inputLine, outputLine;
 			
-			//while (!response.compareTo("crosby87 bye") == 0)
-			//{
+			//symbolizes a new line for print formatting at client side.
+			String newline = "~";
+			//boolean to determine if they are already logged in
+			boolean logged = false;
 			
-				System.out.println("Client requested this: " + request);
-			      
-				//ANY PROCESSING DONE IN HERE USE KEYWORD "synchronized"!
+			//server asks the client to enter a command
+			outputLine = "Enter a command: ";
+			out.println(outputLine);
+		
+			String send;
 			
-				response = "Hi Client, You asked for a login! I am thread #" + this.ID + '\n';
-			      
-				outToClient.writeBytes(response);
+			while ((inputLine = inFromClient.readLine()) != null)
+			{	
+				//debugging print statement, server prints client request
+				System.out.println("Client request: " + inputLine);
 				
-				//request = inFromClient.readLine();
-			//}
+				//call parser to parse the requested command
+				String[] response = Parser.GetCommand(inputLine);
+				
+				//if its a login, and they have never logged in yet
+				if (response[0].compareTo("login") == 0 && logged == false)
+				{
+					logged = true;
+					//successful login, create new player, add to player list
+					playerList.add(new Player(response[1], this.connection, this.ID));
+					
+					//build up the string to output
+					//can make a class to put this code in to clean it up if needed
+					//basically prints that they have logged in, then the number of people
+					//currently logged into the system as well as the list of their names
+					send = "You requested login." + newline;				
+					send += "Number of people logged in: " + playerList.size() + newline;			
+					send += "Here is who is logged in: " + newline;
+					for (int i = 0; i < playerList.size(); i++)
+					{
+						Player temp;
+						temp = playerList.get(i);
+						send += "\t" + temp.getUserName() + " {is in game: " + temp.isBusy() + "}" + newline;
+					}
+					//server statement for information
+					System.out.println("login requested and completed succesfully.");
 			
-			connection.close();
+				}
+				//if they try to log in again
+				else if (response[0].compareTo("login") == 0 && logged == true)
+				{
+					send = "You are already logged in.";
+				}
+				
+				else if (response[0].compareTo("play") == 0)
+				{
+					//user requested to play a game with person in response[1]
+					//try to set up a game.
+					send = "You are already logged in.";
+				}				
+				
+				else if (response[0].compareTo("remove") == 0)
+				{
+					//call remove function, giving it ID of player requesting move
+					send = "You requested remove.";
+				}
+				else if (response[0].compareTo("bye") == 0)
+				{
+					//remove player from playerlist, games, etc
+					
+					send = "bye";
+					out.println(send);
+					connection.close();
+				}
+				else //incorrect command given
+				{
+					send = response[0] + newline;
+				}
+				
+				out.println(send);
+				
+			}
 		}
+		
 		catch (Exception e)
 		{
 			System.out.println(e);
