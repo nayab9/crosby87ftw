@@ -14,7 +14,8 @@ public class Game {
 	private Player playerB;
 	private Player turn; // the player who's turn it is
 	private int items[];
-	private int numOfSets; 
+	private int numOfSets;
+	private String newline = "~";
 		
 	public Game(Player playerA, Player playerB) {
 		this.playerA = playerA;
@@ -75,13 +76,13 @@ public class Game {
 		for(int i = 1; i < numOfSets + 1; i++) {
 			buffer.append(i + " ");
 		}
-		buffer.append("\n");
+		buffer.append(newline);
 		
 		buffer.append("size ");
 		for(int i = 0; i < numOfSets; i++) {
 			buffer.append(items[i] + " ");
 		}
-		buffer.append("\n");
+		buffer.append(newline);
 		
 		return buffer.toString();
 	}
@@ -95,7 +96,7 @@ public class Game {
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append(turn.getUserName() + " takes " + n + " from set " + s);
-		buffer.append("\n\t");
+		buffer.append(newline + "\t");
 
 		items[s-1] -= n;
 		
@@ -111,7 +112,7 @@ public class Game {
 			}			
 		} else {
 			// Print winner
-			buffer.append("\n" + turn.getUserName() + " wins.");
+			buffer.append(newline + turn.getUserName() + " wins.");
 		}
 		
 		return buffer.toString();
