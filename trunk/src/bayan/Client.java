@@ -10,21 +10,18 @@ public class Client
 		//host provided via command line
 		//String host = args[0];
 		
-		//hardcoded host
+		//hard coded host for now
 		String host = "localhost";
 		
 		//port provided via command line
 		//int port = Integer.parseInt(args[1]);
 		
-		//hardcoded port
+		//hard coded port for now
 		int port = 8787;
 		
 		//instream from standard input for commands
 		BufferedReader inFromUser = 
 			new BufferedReader(new InputStreamReader(System.in));
-		
-		String request = "";
-		String response = "";
 		
 		System.out.println("Client Initialized . . .");
 		
@@ -33,36 +30,26 @@ public class Client
 			//create socket
 			Socket connection = new Socket(host, port);
 			
-			DataOutputStream outToServer = 
-				new DataOutputStream(connection.getOutputStream()); 
 			BufferedReader inFromServer = new BufferedReader
-				(new InputStreamReader(connection.getInputStream()));
-			/*
-			 * input original command from user
-			 * loop until the user says bye
-			 */			
-			//request = inFromUser.readLine();
-			//while (!response.compareTo("crosby87 bye") == 0)
-			//{
+				(new InputStreamReader(connection.getInputStream()));				
+			PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
 			
-				//temporary automatically generated requests
-				request = "crosby87 login bayan";
+			String fromServer, fromUser;
+
+			while ((fromServer = inFromServer.readLine()).compareTo("bye") != 0)//((fromServer = inFromServer.readLine()) != null)
+			{
+				fromServer = fromServer.replace("~", "\n");
+				System.out.println("Server - " + fromServer);
+	
+				fromUser = inFromUser.readLine();
+				if (fromUser != null)
+				{				
+					fromUser = "crosby87 " + fromUser;
+					System.out.println("Client - " + fromUser);
+					out.println(fromUser);
+				}
 				
-				//send request to server
-				outToServer.writeBytes(request + '\n');
-				
-				/*
-				 * response from server can be multiple lines,
-				 * to know its the end of the response, look for
-				 * a simple blank line
-				 */				
-				response = inFromServer.readLine();
-				//while (!response.compareTo('\n') == 0)
-					System.out.println("FROM SERVER: " + response);
-				//} end response while
-				
-				//request = inFromUser.readLine();
-			//} end client input while
+			} //end client input while
 			
 			connection.close();
 		}
