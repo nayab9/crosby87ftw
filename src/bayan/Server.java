@@ -100,8 +100,8 @@ public class Server implements Runnable
 					send = "You requested login." + newline;
 					if (playerList.size() > 1)
 					{
-						send += "Number of people logged in (including you): " + playerList.size() + newline;			
-						send += "Here is who is logged in (including you): " + newline;
+						send += "Number of people logged in: " + playerList.size() + newline;			
+						send += "Here is who is logged in: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							Player temp;
@@ -118,6 +118,7 @@ public class Server implements Runnable
 					}
 					//server statement for information
 					System.out.println("login successful.");
+					sendString(send, this.connection);
 				}
 				//if they try to log in again
 				else if (response[0].compareTo("login") == 0 && logged == true)
@@ -167,7 +168,8 @@ public class Server implements Runnable
 						Player turn = game.getTurn();
 						send += "It is " + turn.getUserName() + "'s turn." + newline;
 						
-						sendString(send);
+						sendString(send, A.getSocket());
+						sendString(send, B.getSocket());
 						
 						System.out.println("PlayerA socket information to send to: " + A.getSocket().toString());
 						System.out.println("PlayerB socket information to send to: " + B.getSocket().toString());
@@ -198,6 +200,7 @@ public class Server implements Runnable
 				else //incorrect command given
 				{
 					send = " * error message 404 * " + response[0] + newline;
+					sendString(send, this.connection);
 				}
 				
 				//out.println(send);
@@ -211,17 +214,18 @@ public class Server implements Runnable
 		}
 	}
 	
-	public void sendString(String msg)
+	public void sendString(String msg, Socket socket)
 	{
 		PrintWriter out = null;
 		try 
 		{
-			out = new PrintWriter(connection.getOutputStream(), true);
+			out = new PrintWriter(socket.getOutputStream(), true);
+			out.println(msg);
 		} 
 		catch (IOException e) 
 		{
 			e.printStackTrace();
 		}
-		out.println(msg);
+		
 	}
 }
