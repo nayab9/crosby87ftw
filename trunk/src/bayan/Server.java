@@ -132,6 +132,7 @@ public class Server implements Runnable
 					//user requested to play a game with person in response[1]
 					//try to set up a game.
 					Player A = null, B = null;
+					String playerA = null, playerB = null;
 					//need a case here for dealing with someone trying to play against themselves
 					for (int i = 0; i < playerList.size(); i++)
 					{
@@ -142,16 +143,18 @@ public class Server implements Runnable
 						{
 							playerAindex = i;
 							A = playerList.get(playerAindex);
+							playerA = A.getUserName();
 						}
 						//check if requested challenger is available
 						else if (temp.getUserName().compareTo(response[1]) == 0 && !temp.isBusy())
 						{
 							playerBindex = i;
 							B = playerList.get(playerBindex);
+							playerB = B.getUserName();
 						}
 					}
 					//if both players are available
-					if (playerAindex > -1 && playerBindex > -1)
+					if (playerAindex > -1 && playerBindex > -1 && (!(playerA.compareTo(playerB)==0)) )
 					{
 						//set players to busy now
 						A.setBusy(true);
@@ -170,13 +173,13 @@ public class Server implements Runnable
 						
 						sendString(send, A.getSocket());
 						sendString(send, B.getSocket());
-						
 
 						//special output to the socket of the other player
 					}				
 					else
 					{
-						send += "One of you is already in a game or opponent does not exist." + newline;
+						send += "Error: one of you is already in a game, opponent does not exist, or you requested yourself." + newline;
+						sendString(send, this.connection);
 					}
 				}				
 				
@@ -200,10 +203,7 @@ public class Server implements Runnable
 				{
 					send = " * error message 404 * " + response[0] + newline;
 					sendString(send, this.connection);
-				}
-				
-				//out.println(send);
-				
+				}		
 			}
 		}
 		
@@ -226,7 +226,6 @@ public class Server implements Runnable
 		catch (IOException e) 
 		{
 			e.printStackTrace();
-		}
-		
+		}	
 	}
 }
