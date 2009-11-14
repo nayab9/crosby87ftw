@@ -15,6 +15,7 @@ public class Server implements Runnable
 	//global arraylist for players, volatile so that it is synchronized
 	public static volatile ArrayList<Player> playerList = new ArrayList<Player>();
 	public static volatile ArrayList<Game> gameList = new ArrayList<Game>();
+	public static volatile ArrayList<Thread> threadList = new ArrayList<Thread>();
 	
 	public static void main(String[] args)
 	{
@@ -42,6 +43,7 @@ public class Server implements Runnable
 				Thread thread = new Thread(runnable);
 				//start executing thread block code
 				//provided by the run() method
+				threadList.add(thread);
 				thread.start();
 			}
 		}
@@ -96,23 +98,23 @@ public class Server implements Runnable
 					//basically prints that they have logged in, then the number of people
 					//currently logged into the system as well as the list of their names
 					send = "You requested login." + newline;
-					if (playerList.size() > 0)
+					if (playerList.size() > 1)
 					{
-						send += "Number of people logged in (including you!): " + playerList.size() + newline;			
-						send += "Here is who is logged in (including you!): " + newline;
+						send += "Number of people logged in (including you): " + playerList.size() + newline;			
+						send += "Here is who is logged in (including you): " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							Player temp;
 							temp = playerList.get(i);
-							//if (temp.getThreadId() != this.ID)
-							//{
+							if (temp.getThreadId() != this.ID)
+							{
 								send += "\t" + temp.getUserName() + " {is in game: " + temp.isBusy() + "}" + newline;
-							//}
+							}
 						}			
 					}
 					else
 					{
-						
+						send += "You are the only person logged in right now." + newline;
 					}
 					//server statement for information
 					System.out.println("login successful.");
@@ -128,7 +130,7 @@ public class Server implements Runnable
 					int playerAindex = -1, playerBindex = -1;
 					//user requested to play a game with person in response[1]
 					//try to set up a game.
-					
+					Player A = null, B = null;
 					//need a case here for dealing with someone trying to play against themselves
 					for (int i = 0; i < playerList.size(); i++)
 					{
@@ -138,18 +140,23 @@ public class Server implements Runnable
 						if (temp.getThreadId() == this.ID && !temp.isBusy())
 						{
 							playerAindex = i;
+							A = playerList.get(playerAindex);
 						}
 						//check if requested challenger is available
 						else if (temp.getUserName().compareTo(response[1]) == 0 && !temp.isBusy())
 						{
 							playerBindex = i;
+							B = playerList.get(playerBindex);
 						}
 					}
 					//if both players are available
 					if (playerAindex > -1 && playerBindex > -1)
 					{
+						//set players to busy now
+						A.setBusy(true);
+						B.setBusy(true);
 						//create a game with them in it.
-						Game game = new Game(playerList.get(playerAindex), playerList.get(playerBindex));
+						Game game = new Game(A, B);
 						String output = game.initialize();
 						//add it to global game list
 						gameList.add(game);
@@ -157,15 +164,14 @@ public class Server implements Runnable
 						send += output + newline;
 						
 						//need to also tell them whos turn it is
-						//need this method from Game.java
-						//Player turn = game.getTurn();
-						//send += "Your move " + turn.getUserName();
+						Player turn = game.getTurn();
+						send += "It is " + turn.getUserName() + "'s turn." + newline;
 						
+						sendString(send);
+						
+						System.out.println("PlayerA socket information to send to: " + A.getSocket().toString());
+						System.out.println("PlayerB socket information to send to: " + B.getSocket().toString());
 						//special output to the socket of the other player
-						PrintWriter out2 = 
-							new PrintWriter(playerList.get(playerBindex).getSocket().getOutputStream(), true);
-						out2.println(send);
-						//need an observer version of this as well later.
 					}				
 					else
 					{
@@ -194,7 +200,7 @@ public class Server implements Runnable
 					send = " * error message 404 * " + response[0] + newline;
 				}
 				
-				out.println(send);
+				//out.println(send);
 				
 			}
 		}
@@ -203,5 +209,19 @@ public class Server implements Runnable
 		{
 			System.out.println(e);
 		}
+	}
+	
+	public void sendString(String msg)
+	{
+		PrintWriter out = null;
+		try 
+		{
+			out = new PrintWriter(connection.getOutputStream(), true);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		out.println(msg);
 	}
 }
