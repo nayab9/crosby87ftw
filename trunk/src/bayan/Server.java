@@ -181,8 +181,30 @@ public class Server implements Runnable
 						send += "Error: one of you is already in a game, opponent does not exist, or you requested yourself." + newline;
 						sendString(send, this.connection);
 					}
-				}				
-				
+				}
+				//who command
+				else if(response[0].compareTo("who") == 0)
+				{
+					if (playerList.size() > 1)
+					{
+						send += "Number of people logged in: " + playerList.size() + newline;			
+						send += "Here is who is logged in: " + newline;
+						for (int i = 0; i < playerList.size(); i++)
+						{
+							Player temp;
+							temp = playerList.get(i);
+							if (temp.getThreadId() != this.ID && temp.isBusy() != true)
+							{
+								send += "\t" + temp.getUserName() + " {is in game: " + temp.isBusy() + "}" + newline;
+							}
+						}			
+					}
+					else
+					{
+						send += "You are the only person logged in right now." + newline;
+					}
+					sendString(send, this.connection);
+				}
 				else if (response[0].compareTo("remove") == 0)
 				{
 					
