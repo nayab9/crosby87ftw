@@ -1,6 +1,6 @@
-//fuck this shit
 package justin;
 public class Parser {
+	public static int justin = 1;
 	
 	public static void main (String[] args){
 		GetCommand("Crosby87 justin justin");
@@ -9,7 +9,6 @@ public class Parser {
 		GetCommand("Crosby87 remove 1 2");
 		GetCommand("Crosby87 bye");
 	}
-	
 	//Purpose:parse the input and return the command the user wants to output.
 	//Input -> Takes a string (our protocol) and parses it into tokens
 	//output -> will out put a string with the command name or and error message
