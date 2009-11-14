@@ -52,9 +52,9 @@ public class Parser {
 			result = new String[1];
 			result[0] = "Error not enough arguments!";
 		}
-	    for(int i = 0; i < result.length; i++){
-	    	System.out.print(" "+result[i]);
-	    }
+	    //for(int i = 0; i < result.length; i++){
+	    //	System.out.print(" "+result[i]);
+	    //}
 	    System.out.println();
 		return result;
 	}
