@@ -26,46 +26,20 @@ public class Parser {
 	public static String[] GetCommand(String s){
 		String[] result = new String[5];
 		String[] tokens = s.split(" ");
+		for(int i = 0; i < tokens.length; i ++){
+			tokens[i] = tokens[i].toLowerCase();
+		}
 		if(tokens.length > 1){
 			if(tokens[0].toLowerCase().compareTo("crosby87") == 0){
-				//check for login command
-				if(tokens[1].toLowerCase().compareTo("login") == 0 && tokens.length == 3){
-					result = new String[2];
-					result[0] = tokens[1].toLowerCase();
-					result[1] = tokens[2].toLowerCase();
-				//check for play command
-				}else if(tokens[1].toLowerCase().compareTo("play") == 0 && tokens.length == 3){
-					result = new String[2];
-					result[0] = tokens[1].toLowerCase();
-					result[1] = tokens[2].toLowerCase();
-				//check for observe
-				}else if(tokens[1].toLowerCase().compareTo("observe") == 0 && tokens.length == 3){
-					result = new String[2];
-					result[0] = tokens[1].toLowerCase();
-					result[1] = tokens[2].toLowerCase();
-					//check for observe
-				}else if(tokens[1].toLowerCase().compareTo("unobserve") == 0 && tokens.length == 3){
-					result = new String[2];
-					result[0] = tokens[1].toLowerCase();
-					result[1] = tokens[2].toLowerCase();
-			    //check for remove command
-				}else if(tokens[1].toLowerCase().compareTo("remove") == 0 && tokens.length == 4){
-					result = new String[3];
-					result[0] = tokens[1].toLowerCase();
-					result[1] = tokens[2].toLowerCase();
-					result[2] = tokens[3].toLowerCase();
-				//check for bye command
-				}else if(tokens[1].toLowerCase().compareTo("bye") == 0 && tokens.length == 2){
-					result = new String[1];
-					result[0] = tokens[1].toLowerCase();
-				//check for games command, no arguments
-				}else if(tokens[1].toLowerCase().compareTo("games") == 0 && tokens.length == 2){
-					result = new String[1];
-					result[0] = tokens[1].toLowerCase();
-				//check for who command,no arguments
-				}else if(tokens[1].toLowerCase().compareTo("who") == 0 && tokens.length == 2){
-					result = new String[1];
-					result[0] = tokens[1].toLowerCase();
+		        //check for commands with no arguments
+				if(tokens.length == 2){
+					result = NoArgument(tokens);
+				//check for one argument
+				}else if(tokens.length == 3){
+					result = OneArgument(tokens);
+				//check for two arguments
+				}else if(tokens.length == 4){
+					result = TwoArgument(tokens);
 				}else{
 					result = new String[1];
 					result[0] = "Error incorrect command!";
@@ -84,5 +58,47 @@ public class Parser {
 	    System.out.println();
 		return result;
 	}
+	
+	//used for parsing the login,play,observe, and unobserve command
+	public static String[] OneArgument(String[] tokens){
+		String[] result;
+		if(tokens[1].compareTo("login") == 0 || tokens[1].compareTo("play") == 0 || tokens[1].compareTo("observe") == 0 || tokens[1].compareTo("unobserve") == 0){
+			result = new String[2];
+			result[0] = tokens[1];
+			result[1] = tokens[2];
+		}else{
+			result = new String[1];
+			result[0] = "Error incorrect command";
+		}
+		return result;
+	}
+	//used for parsing the bye,games, and who commands
+	public static String[] NoArgument(String[] tokens){
+		String[] result;
+		if(tokens[1].compareTo("bye") == 0 || tokens[1].compareTo("games") == 0 || tokens[1].compareTo("who") == 0){
+			result = new String[1];
+			result[0] = tokens[1];
+		}else{
+			result = new String[1];
+			result[0] = "Error incorrect command";
+		}
+		return result;
+	}
+	//used for parsing the remove command
+	public static String[] TwoArgument(String[] tokens){
+		String[] result;
+		if(tokens[1].compareTo("remove") == 0){
+			result = new String[3];
+			result[0] = tokens[1];
+			result[1] = tokens[2];
+			result[2] = tokens[3];
+		}else{
+			result = new String[1];
+			result[0] = "Error incorrect command";
+		}
+		return result;
+	}
+		
+		
 
 }
