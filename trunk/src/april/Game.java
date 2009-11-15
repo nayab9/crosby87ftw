@@ -109,6 +109,14 @@ public class Game {
 			observers.add(p);
 		}
 	}
+	public void removeObserver(Player p){
+		for(int i = 0; i < observers.size(); i ++){
+			if(observers.get(i).getThreadId() == p.getThreadId()){
+				observers.remove(i);
+				i = observers.size();
+			}
+		}
+	}
 	/**
 	 * Removes n items from set s
 	 * @return the move made by the current player and the 
