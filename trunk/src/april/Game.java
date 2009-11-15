@@ -9,7 +9,7 @@ package april;
  *
  */
 public class Game {
-	
+	private int id = 0;
 	private Player playerA;
 	private Player playerB;
 	private Player turn; // the player who's turn it is
@@ -20,7 +20,8 @@ public class Game {
 	public Game(Player playerA, Player playerB) {
 		this.playerA = playerA;
 		this.playerB = playerB;
-		this.turn = playerA;		
+		this.turn = playerA;
+		id++;
 	}
 
 
@@ -57,6 +58,10 @@ public class Game {
 	
 	public Player getTurn(){
 		return this.turn;
+	}
+	
+	public int getID(){
+		return id;
 	}
 	
 	/**
