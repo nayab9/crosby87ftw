@@ -64,6 +64,10 @@ public class Game {
 		return this.turn;
 	}
 	
+	public ArrayList getObservers(){
+		return this.observers;
+	}
+	
 	public int getID(){
 		return id;
 	}
