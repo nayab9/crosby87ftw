@@ -251,10 +251,23 @@ public class Server implements Runnable
 					//check if its their turn
 					if ( inGame && (game.getTurn().getThreadId() == this.ID) )
 					{
-						int s = Integer.parseInt(response[2]);
-						int n = Integer.parseInt(response[1]);
+						int s = 0, n = 0; 
+						boolean validInput = true;
+						
+						try
+						{
+							s = Integer.parseInt(response[2]);
+							n = Integer.parseInt(response[1]);
+						}
+						
+						catch (NumberFormatException e)
+						{
+							validInput = false;
+						}
+						
+						
 						//check if valid move
-						if ( game.isValidMove(n, s) )
+						if ( validInput && game.isValidMove(n, s) )
 						{
 							send += game.remove(n, s) + newline;
 							//change turn
