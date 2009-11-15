@@ -9,7 +9,8 @@ package april;
  *
  */
 public class Game {
-	private int id = 0;
+	private static int counter;
+	private int id;
 	private Player playerA;
 	private Player playerB;
 	private Player turn; // the player who's turn it is
@@ -21,9 +22,9 @@ public class Game {
 		this.playerA = playerA;
 		this.playerB = playerB;
 		this.turn = playerA;
-		id++;
+		id=counter;
+		counter++;
 	}
-
 
 	/**
 	 * @param playerA the playerA to set
