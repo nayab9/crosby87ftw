@@ -500,7 +500,7 @@ public class Server implements Runnable
 					//check if its their turn
 					if ( inGame && response[1].compareTo("doesnt")==0 &&  response[2].compareTo("quit")==0)
 					{
-						send += A.getUserName() + " automatically wins because he is better then you." + newline;
+						send += A.getUserName() + " automatically wins because crosby is better then you." + newline;
 						send += "CROSBY. DOESNT. QUIT." + newline;
 						
 						//message all observers to say game is now ending
