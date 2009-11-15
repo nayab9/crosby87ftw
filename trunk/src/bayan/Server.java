@@ -207,7 +207,57 @@ public class Server implements Runnable
 				}
 				else if (response[0].compareTo("remove") == 0)
 				{
-					
+					boolean inGame = false;
+					Game game = null;
+					Player A = null, B = null;
+					//find the game the player is in
+					for (int i = 0; i < gameList.size(); i++)
+					{
+						game = gameList.get(i);
+						A = game.getPlayerA();
+						B = game.getPlayerB();
+						//if the person requesting a remove, is actually in a game
+						if ( (this.ID == game.getPlayerA().getThreadId()) )
+						{
+							inGame = true;
+							A = game.getPlayerA();
+							B = game.getPlayerB();
+						}
+						//pretending like i am player A to make life easier
+						else if ( (this.ID == game.getPlayerB().getThreadId()) )
+						{
+							inGame = true;
+							A = game.getPlayerB();
+							B = game.getPlayerA();
+						}
+					}	
+					//check if its their turn
+					if ( inGame && (game.getTurn().getThreadId() == this.ID) )
+					{
+						int s = Integer.parseInt(response[2]);
+						int n = Integer.parseInt(response[1]);
+						//check if valid move
+						if ( game.isValidMove(n, s) )
+						{
+							send += game.remove(n, s);
+							//change turn
+							//						
+							sendString(send, A.getSocket());
+							sendString(send, B.getSocket());
+						}
+						else
+						{
+							send += "Invalid move, try again." + newline;
+							sendString(send, this.connection);
+						}
+						
+					}
+					else
+					{
+						send += "Hold your 'horeses' - You are not in a game, or its not your turn." + newline;
+						sendString(send, this.connection);
+					}
+					//send = "You requested remove.";
 					//send = "You requested remove.";
 				}
 				else if (response[0].compareTo("bye") == 0)
