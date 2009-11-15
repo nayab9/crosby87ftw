@@ -141,6 +141,8 @@ public class Game {
 			valid = false;
 		} else if (items[s-1]-n < 0) { // checks there are enough items to be removed
 			valid = false;
+		} else if (s <= 0){
+			valid = false;
 		}
 		
 		return valid;
