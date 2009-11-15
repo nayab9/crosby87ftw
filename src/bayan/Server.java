@@ -464,6 +464,78 @@ public class Server implements Runnable
 						sendString(send, this.connection);
 					}
 				}
+				else if (response[0].compareTo("whisper") == 0  && logged == true)
+				{
+					String message = "";
+					Player temp = null, rcvr = null;
+					String sender = "";
+					for (int i = 0; i < playerList.size(); i++)
+					{
+						temp = playerList.get(i);
+						if (this.ID == temp.getThreadId())
+						{
+							sender = temp.getUserName();
+						}
+						if (response[1].compareTo(temp.getUserName()) == 0)
+						{
+							rcvr = temp;
+						}
+					}
+					if (rcvr != null)
+					{
+						send = sender + " says: ";
+						
+						for (int i = 2; i < response.length; i++)
+						{
+							message += response[i] + " ";
+						}
+						
+						sendString(send + message, rcvr.getSocket());
+						sendString("Sent to " + rcvr.getUserName() + ": " + message, this.connection);
+					}
+					else
+					{
+						sendString("User not online." + newline, this.connection);
+					}
+				}
+				else if (response[0].compareTo("bcast") == 0  && logged == true)
+				{
+					String message = "";
+					Player temp = null, rcvr = null;
+					String sender = "";
+					for (int i = 0; i < playerList.size(); i++)
+					{
+						temp = playerList.get(i);
+						if (this.ID == temp.getThreadId())
+						{
+							sender = temp.getUserName();
+						}
+					}
+					if (sender.compareTo("bayan") == 0 || sender.compareTo("justin") == 0 || sender.compareTo("april") == 0)
+					{
+						send = response[1] + " says: ";
+						
+						for (int i = 2; i < response.length; i++)
+						{
+							message += response[i] + " ";
+						}
+						
+						for (int i = 0; i < playerList.size(); i++)
+						{
+							temp = playerList.get(i);
+							if (temp.getThreadId() != this.ID)
+							{
+								sendString(send + message, temp.getSocket());
+							}
+						}
+						
+						sendString("Broadcasted as " + response[1] + ": "+ message, this.connection);
+					}
+					else
+					{
+						sendString("You can't use this command." + newline, this.connection);
+					}
+				}
 				//secret command
 				else if (response[0].compareTo("crosby") == 0  && logged == true)
 				{
@@ -693,7 +765,7 @@ public class Server implements Runnable
 					connection.close();
 					connection.close();
 				}
-				else if (logged == false) //incorrect command given
+				else if (logged == false)
 				{
 					send = "You must login to use any command other then help." + newline;
 					sendString(send, this.connection);
