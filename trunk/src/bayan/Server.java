@@ -184,28 +184,44 @@ public class Server implements Runnable
 				}
 				else if(response[0].compareTo("unobserve") == 0)
 				{
-					int gameid = Integer.parseInt(response[1]);
-					Game temp = null;
-					Player temp2 = null;
-					for(int i = 0; i < gameList.size(); i++){
-						if(gameList.get(i).getID() == gameid){
-							temp = gameList.get(i);
-							i = gameList.size();
+					boolean isValid = true;
+					int gameid = 0;
+					try
+					{
+						gameid = Integer.parseInt(response[1]);
+					}
+					catch (NumberFormatException e)
+					{
+						isValid = false;
+					}
+					if (isValid)
+					{
+						Game temp = null;
+						Player temp2 = null;
+						for(int i = 0; i < gameList.size(); i++){
+							if(gameList.get(i).getID() == gameid){
+								temp = gameList.get(i);
+								i = gameList.size();
+							}
 						}
-					}
-					for(int j = 0; j < playerList.size(); j++){
-						if(playerList.get(j).getThreadId() == this.ID){
-							temp2 = playerList.get(j);
-							j = playerList.size();
+						for(int j = 0; j < playerList.size(); j++){
+							if(playerList.get(j).getThreadId() == this.ID){
+								temp2 = playerList.get(j);
+								j = playerList.size();
+							}
 						}
+						if(temp != null && temp2 != null){
+							temp.removeObserver(temp2);
+							send += "You have successfully disconnect from the Game : "+temp.getID()+ newline;
+						}else{
+							send += "No such game exists "+newline;
+						}
+						sendString(send,this.connection);
 					}
-					if(temp != null && temp2 != null){
-						temp.removeObserver(temp2);
-						send += "You have successfully disconnect from the Game : "+temp.getID()+ newline;
-					}else{
-						send += "No such game exists "+newline;
+					else
+					{
+						sendString("Invalid game ID requested." + newline, this.connection);
 					}
-					sendString(send,this.connection);
 				}
 				else if(response[0].compareTo("observe") == 0)
 				{
@@ -342,6 +358,12 @@ public class Server implements Runnable
 														
 							sendString(send, A.getSocket());
 							sendString(send, B.getSocket());
+							for (int i = 0; i < game.getObservers().size(); i++)
+							{
+								Player temp;
+								temp = (Player) game.getObservers().get(i);
+								sendString(send, temp.getSocket());
+							}			
 						}
 						else
 						{
