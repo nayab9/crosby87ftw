@@ -320,7 +320,7 @@ public class Server implements Runnable
 						}
 						else
 						{
-							send += "Invalid move, try again." + newline;
+							send += "Invalid move or input, try again." + newline;
 							sendString(send, this.connection);
 						}
 						
