@@ -256,9 +256,10 @@ public class Server implements Runnable
 						//check if valid move
 						if ( game.isValidMove(n, s) )
 						{
-							send += game.remove(n, s);
+							send += game.remove(n, s) + newline;
 							//change turn
-							//						
+							send += "It is " + game.getTurn().getUserName() + "'s turn." + newline;
+														
 							sendString(send, A.getSocket());
 							sendString(send, B.getSocket());
 						}
