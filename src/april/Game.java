@@ -115,7 +115,7 @@ public class Game {
 		}
 		
 		if (!gameOver()) {
-			if( turn == playerA ) {
+			if( turn.getThreadId() == playerA.getThreadId() ) {
 				turn = playerB;
 			} else {
 				turn = playerA;
