@@ -1,5 +1,7 @@
 package april;
-
+import java.net.*;
+import java.io.*;
+import java.util.*;
 /**
  * 
  */
@@ -11,6 +13,7 @@ package april;
 public class Game {
 	private static int counter;
 	private int id;
+	private ArrayList<Player> observers = new ArrayList<Player>();
 	private Player playerA;
 	private Player playerB;
 	private Player turn; // the player who's turn it is
@@ -64,7 +67,7 @@ public class Game {
 	public int getID(){
 		return id;
 	}
-	
+
 	/**
 	 * Initializes the game with random number of sets (btwn 3 and 5)
 	 * and random number of items per set (btwn 1 and 7)
@@ -96,7 +99,16 @@ public class Game {
 		
 		return buffer.toString();
 	}
-
+    public void addObserver(Player p){
+		boolean check = false;
+		for(int i = 0; i < observers.size(); i++){
+			if(observers.get(i).getThreadId() == p.getThreadId())
+				check = true;
+		}
+		if(check == false){
+			observers.add(p);
+		}
+	}
 	/**
 	 * Removes n items from set s
 	 * @return the move made by the current player and the 
