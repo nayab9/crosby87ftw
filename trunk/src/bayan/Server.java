@@ -205,6 +205,23 @@ public class Server implements Runnable
 					}
 					sendString(send, this.connection);
 				}
+				//games
+				else if (response[0].compareTo("games") == 0)
+				{
+					if(gameList.size() > 0){
+						send += "Current Games:"+ newline;
+						for (int i = 0; i < gameList.size(); i++){
+							Game temp;
+							temp = gameList.get(i);
+							send += temp.getID()+" : "+temp.getPlayerA().getUserName() + " vs " + temp.getPlayerB().getUserName() + newline;
+						}
+					}else{
+						send += "There are no games"+ newline;
+					}
+					sendString(send, this.connection);
+					
+				}
+				//remove
 				else if (response[0].compareTo("remove") == 0)
 				{
 					boolean inGame = false;
