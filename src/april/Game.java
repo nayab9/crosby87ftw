@@ -130,7 +130,7 @@ public class Game {
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append(turn.getUserName() + " takes " + n + " from set " + s);
-		buffer.append(newline + "\t");
+		buffer.append(newline);
 
 		items[s-1] -= n;
 		
