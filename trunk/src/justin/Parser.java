@@ -24,7 +24,7 @@ public class Parser {
 	//output -> will out put a string with the command name or and error message
 	//This is a simple parser. e.g.
 	public static String[] GetCommand(String s){
-		String[] result = new String[5];
+		String[] result = null;
 		String[] tokens = s.split(" ");
 		for(int i = 0; i < tokens.length; i ++){
 			tokens[i] = tokens[i].toLowerCase();
@@ -40,6 +40,8 @@ public class Parser {
 				//check for two arguments
 				}else if(tokens.length == 4){
 					result = TwoArgument(tokens);
+				}else if(tokens.length > 4){
+					result = whisperArg(tokens);
 				}else{
 					result = new String[1];
 					result[0] = "Error incorrect command!";
@@ -87,7 +89,7 @@ public class Parser {
 	//used for parsing the remove command
 	public static String[] TwoArgument(String[] tokens){
 		String[] result;
-		if( tokens[1].compareTo("remove") == 0 || tokens[1].compareTo("crosby") == 0){
+		if( tokens[1].compareTo("remove") == 0 || tokens[1].compareTo("crosby") == 0 || tokens[1].compareTo("whisper") == 0 || tokens[1].compareTo("bcast") == 0){
 			result = new String[3];
 			result[0] = tokens[1];
 			result[1] = tokens[2];
@@ -98,7 +100,24 @@ public class Parser {
 		}
 		return result;
 	}
-		
+	
+	public static String[] whisperArg(String[] tokens){
+		String[] result;
+		if( tokens[1].compareTo("whisper") == 0 || tokens[1].compareTo("bcast") == 0){
+			result = new String[tokens.length-1];
+			result[0] = tokens[1];
+			result[1] = tokens[2];
+			for (int i = 2; i < result.length; i++)
+			{
+				result[i] = tokens[i+1];
+			}
+			
+		}else{
+			result = new String[1];
+			result[0] = "Error incorrect command";
+		}
+		return result;
+	}		
 		
 
 }
