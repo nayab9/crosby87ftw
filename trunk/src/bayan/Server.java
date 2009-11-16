@@ -71,7 +71,7 @@ public class Server implements Runnable
 			boolean logged = false;
 			
 			//server asks the client to enter a command
-			outputLine = "Welcome to the Game of Nim, type 'help' without quotes for a list of commands." + newline;
+			outputLine = "400 OK Welcome to the Game of Nim, type 'help' without quotes for a list of commands." + newline;
 			out.println(outputLine);
 		
 			String send = "";
@@ -103,13 +103,13 @@ public class Server implements Runnable
 					}
 					if (exists)
 					{
-						send = "That username is taken, please pick another one." + newline;
+						send = "400 ERROR That username is taken, please pick another one." + newline;
 					}
 					else
 					{	
 						logged = true;
 						playerList.add(new Player(response[1], this.connection, this.ID));
-						send = "Welcome " + response[1] + ", you are now logged in." + newline;
+						send = "200 OK Welcome " + response[1] + ", you are now logged in." + newline;
 					}
 					//default list of current players in the system upon login
 /*
@@ -139,7 +139,7 @@ public class Server implements Runnable
 				//if they try to log in again
 				else if (response[0].compareTo("login") == 0 && logged == true)
 				{
-					send = "You are already logged in." + newline;
+					send = "400 ERROR You are already logged in." + newline;
 					sendString(send, this.connection);
 				}
 				//do the rest of these clauses need to be surrounded by an if (logged in?)
@@ -150,7 +150,6 @@ public class Server implements Runnable
 					//try to set up a game.
 					Player A = null, B = null;
 					String playerA = null, playerB = null;
-					//TODO: need a case here for dealing with someone trying to play against themselves
 					for (int i = 0; i < playerList.size(); i++)
 					{
 						Player temp;
@@ -182,28 +181,29 @@ public class Server implements Runnable
 						//add it to global game list
 						gameList.add(game);
 						
-						send = "You are now in a game with " + B.getUserName() + "." + newline;
+						send = "200 OK You are now in a game with " + B.getUserName() + "." + newline;
 						//set the output of initialized game
 						send += output;
 						sendString(send, A.getSocket());
-						send = "You are now in a game with " + A.getUserName() + "." + newline;
+						send = "200 OK You are now in a game with " + A.getUserName() + "." + newline;
 						send += output;
 						sendString(send, B.getSocket());
 						//need to also tell them whos turn it is
 						Player turn = game.getTurn();
-						send = "It is " + turn.getUserName() + "'s turn." + newline;
+						send = "200 OK It is " + turn.getUserName() + "'s turn." + newline;
 						sendString(send, A.getSocket());
 						sendString(send, B.getSocket());
 
 					}				
 					else
 					{
-						send += "Error: one of you is already in a game, opponent does not exist, or you requested yourself." + newline;
+						send += "400 ERROR Error: one of you is already in a game, opponent does not exist, or you requested yourself." + newline;
 						sendString(send, this.connection);
 					}
 				}
 				else if(response[0].compareTo("unobserve") == 0  && logged == true)
 				{
+					boolean isObserver = false;
 					boolean isValid = true;
 					int gameid = 0;
 					try
@@ -230,23 +230,34 @@ public class Server implements Runnable
 								j = playerList.size();
 							}
 						}
-						if(temp != null && temp2 != null){
+						//cycle through observer list of specified game
+						for (int i = 0; i < temp.getObservers().size(); i++)
+						{
+							Player observer = null;
+							observer = (Player) temp.getObservers().get(i);
+							if (observer.getThreadId() == this.ID)
+							{
+								isObserver = true;
+							}
+						}
+						if(temp != null && temp2 != null && isObserver){
 							temp.removeObserver(temp2);
-							send += "You have successfully disconnect from the Game : "+temp.getID()+ newline;
+							send += "200 OK You are no longer observing game: "+temp.getID()+ newline;
 						}else{
-							send += "No such game exists "+newline;
+							send += "No such game or you are not observing that game."+newline;
 						}
 						sendString(send,this.connection);
 					}
 					else
 					{
-						sendString("Invalid game ID requested." + newline, this.connection);
+						sendString("400 ERROR Invalid input, try again." + newline, this.connection);
 					}
 				}
 				else if(response[0].compareTo("observe") == 0  && logged == true)
 				{
 					boolean isValid = true;
 					int gameid = 0;
+					boolean isObserver = false;
 					try
 					{
 						gameid = Integer.parseInt(response[1]);
@@ -255,6 +266,7 @@ public class Server implements Runnable
 					{
 						isValid = false;
 					}
+					
 					
 					if (isValid)
 					{
@@ -272,19 +284,29 @@ public class Server implements Runnable
 								j = playerList.size();
 							}
 						}
-						if(temp != null && temp2 != null && (temp.getPlayerA().getThreadId() != this.ID || temp.getPlayerB().getThreadId() != this.ID))
-						//TODO: add a clause in here to not allow them to be an observer more then once, i.e. check if they are already an observer
+						//cycle through observer list of specified game
+						for (int i = 0; i < temp.getObservers().size(); i++)
+						{
+							Player observer = null;
+							observer = (Player) temp.getObservers().get(i);
+							if (observer.getThreadId() == this.ID)
+							{
+								isObserver = true;
+							}
+						}
+						if(temp != null && temp2 != null && (temp.getPlayerA().getThreadId() != this.ID || temp.getPlayerB().getThreadId() != this.ID)
+															&& isObserver == false )
 						{
 							temp.addObserver(temp2);
-							send += "You are now an observer of Game : "+temp.getID()+ newline;
+							send += "200 OK You are now an observer of Game : "+temp.getID()+ newline;
 						}else{
-							send += "You can't observe that game, either it doesn't exist or you are a player in it. "+newline;
+							send += "400 ERROR You can't observe that game, either it doesn't exist, you are a player in it, or you are already an observer. "+newline;
 						}
 						sendString(send,this.connection);
 					}
 					else
 					{
-						sendString("Invalid game ID requested." + newline, this.connection);
+						sendString("400 ERROR Invalid game ID." + newline, this.connection);
 					}
 				}
 				//who command
@@ -292,7 +314,7 @@ public class Server implements Runnable
 				{
 					if (playerList.size() > 1)
 					{
-						send += "Total number of people logged into server: " + playerList.size() + newline;			
+						send += "200 OK Total number of people logged into server: " + playerList.size() + newline;			
 						send += "Here is who else is logged in and currently available: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
@@ -310,7 +332,7 @@ public class Server implements Runnable
 					}
 					else
 					{
-						send += "You are the only person logged in right now." + newline;
+						send += "200 OK You are the only person logged in right now." + newline;
 					}
 					sendString(send, this.connection);
 				}
@@ -318,7 +340,7 @@ public class Server implements Runnable
 				{
 					if (playerList.size() > 1)
 					{
-						send += "Total number of people logged into server: " + playerList.size() + newline;			
+						send += "200 OK Total number of people logged into server: " + playerList.size() + newline;			
 						send += "Here is a complete list of who is logged in: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
@@ -335,7 +357,7 @@ public class Server implements Runnable
 					}
 					else
 					{
-						send += "You are the only person logged in right now." + newline;
+						send += "200 OK You are the only person logged in right now." + newline;
 					}
 					sendString(send, this.connection);
 				}
@@ -343,14 +365,14 @@ public class Server implements Runnable
 				else if (response[0].compareTo("games") == 0  && logged == true)
 				{
 					if(gameList.size() > 0){
-						send += "Current Games:"+ newline;
+						send += "200 OK Current Games:"+ newline;
 						for (int i = 0; i < gameList.size(); i++){
 							Game temp;
 							temp = gameList.get(i);
 							send += temp.getID()+" : "+temp.getPlayerA().getUserName() + " vs " + temp.getPlayerB().getUserName() + newline;
 						}
 					}else{
-						send += "There are currently no games."+ newline;
+						send += "200 OK There are currently no games."+ newline;
 					}
 					sendString(send, this.connection);
 					
@@ -409,7 +431,7 @@ public class Server implements Runnable
 						if ( validInput && game.isValidMove(n, s) )
 						{
 							//valid move, so do it
-							send += game.remove(n, s) + newline;
+							send += "200 OK " + game.remove(n, s) + newline;
 							
 							//if the game is not over, keep going
 							if (!game.gameOver())
@@ -454,13 +476,13 @@ public class Server implements Runnable
 						}
 						else
 						{
-							send += "Invalid move or input, try again." + newline;
+							send += "400 ERROR Invalid move or input, try again." + newline;
 							sendString(send, this.connection);
 						}					
 					}
 					else
 					{
-						send += "Hold your 'horeses' - You are not in a game, or its not your turn." + newline;
+						send += "400 ERROR Hold your 'horeses' - You are not in a game, or its not your turn." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -490,18 +512,18 @@ public class Server implements Runnable
 							message += response[i] + " ";
 						}
 						
-						sendString(send + message, rcvr.getSocket());
-						sendString("Sent to " + rcvr.getUserName() + ": " + message, this.connection);
+						sendString("200 OK " + send + message, rcvr.getSocket());
+						sendString("200 OK Sent to " + rcvr.getUserName() + ": " + message, this.connection);
 					}
 					else
 					{
-						sendString("User not online." + newline, this.connection);
+						sendString("400 ERROR User not online." + newline, this.connection);
 					}
 				}
 				else if (response[0].compareTo("bcast") == 0  && logged == true)
 				{
 					String message = "";
-					Player temp = null, rcvr = null;
+					Player temp = null;
 					String sender = "";
 					for (int i = 0; i < playerList.size(); i++)
 					{
@@ -525,15 +547,15 @@ public class Server implements Runnable
 							temp = playerList.get(i);
 							if (temp.getThreadId() != this.ID)
 							{
-								sendString(send + message, temp.getSocket());
+								sendString("200 OK " + send + message, temp.getSocket());
 							}
 						}
 						
-						sendString("Broadcasted as " + response[1] + ": "+ message, this.connection);
+						sendString("200 OK Broadcasted as " + response[1] + ": "+ message, this.connection);
 					}
 					else
 					{
-						sendString("You can't use this command." + newline, this.connection);
+						sendString("400 ERROR You can't use this command." + newline, this.connection);
 					}
 				}
 				//secret command
@@ -572,7 +594,7 @@ public class Server implements Runnable
 					//check if its their turn
 					if ( inGame && response[1].compareTo("doesnt")==0 &&  response[2].compareTo("quit")==0)
 					{
-						send += A.getUserName() + " automatically wins because crosby is better then you." + newline;
+						send += "200 OK " + A.getUserName() + " automatically wins because crosby is better then you." + newline;
 						send += "CROSBY. DOESNT. QUIT." + newline;
 						
 						//message all observers to say game is now ending
@@ -601,7 +623,7 @@ public class Server implements Runnable
 					
 					else
 					{
-						send += "You are awesome." + newline;
+						send += "200 OK You are awesome." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -614,7 +636,6 @@ public class Server implements Runnable
 					Game game = null;
 					Player A = null, B = null;
 					int gameID = 0;
-					int observerGameID = 0;
 					//find if the player is in a game as a player or observer
 					for (int i = 0; i < gameList.size(); i++)
 					{
@@ -642,7 +663,6 @@ public class Server implements Runnable
 						//if this bye request is from a player who is registered in an observer list
 						else if ( (this.ID == ((Player) game.getObservers().get(i)).getThreadId() )) 
 						{
-							observerGameID = game.getID();
 							observer = true;
 						} 
 					}
@@ -650,8 +670,8 @@ public class Server implements Runnable
 					if ( inGame && observer )
 					{
 						//game cleanup
-						send += A.getUserName() + " is quitting the game, game over, " + 
-						B.getUserName() + " wins!" + newline;
+						send += "200 OK " + A.getUserName() + " is quitting the game, game over, " + 
+							B.getUserName() + " wins!" + newline;
 				
 						//message all observers to say game is now ending due to leaver
 						for (int i = 0; i < game.getObservers().size(); i++)
@@ -690,15 +710,13 @@ public class Server implements Runnable
 								}
 							}
 						}
-						send += "Goodbye sir." + newline;
-						sendString(send, this.connection);					
-						
+
 					}
 					//only game cleanup
 					else if ( inGame && !observer)
 					{
-						send += A.getUserName() + " is quitting the game, game over, " + 
-						B.getUserName() + " wins!" + newline;
+						send += "200 OK " + A.getUserName() + " is quitting the game, game over, " + 
+							B.getUserName() + " wins!" + newline;
 				
 						//message all observers to say game is now ending due to leaver
 						for (int i = 0; i < game.getObservers().size(); i++)
@@ -710,8 +728,7 @@ public class Server implements Runnable
 						//tell playerB he won.
 						sendString(send, B.getSocket());
 						//say bye to player A
-						sendString("Goodbye.", this.connection);
-						
+												
 						//delete game
 						for (int i = 0; i < gameList.size(); i++)
 						{
@@ -741,17 +758,14 @@ public class Server implements Runnable
 								}
 							}
 						}
-						send += "Goodbye!" + newline;
-						sendString(send, this.connection);					
+			
 					}
-					
+					//not even in a game or an observer
 					else
 					{
-						send += "Goodbye!" + newline;
-						sendString(send, this.connection);
-						
+			
 					}
-					//remove player from playerlist
+					//remove player from player list
 					for (int i = 0; i < playerList.size(); i++)
 					{
 						Player temp;
@@ -761,18 +775,19 @@ public class Server implements Runnable
 							playerList.remove(i);
 						}
 					}
-					//close the connection
-					connection.close();
+					send = "1337 DISCONNECT";
+					sendString(send, this.connection);
+					//close the connection from server side
 					connection.close();
 				}
 				else if (logged == false)
 				{
-					send = "You must login to use any command other then help." + newline;
+					send = "400 ERROR You must login to use any command other then help." + newline;
 					sendString(send, this.connection);
 				}		
 				else
 				{
-					send = " * error message 404 * " + response[0] + newline;
+					send = "400 ERROR " + response[0] + newline;
 					sendString(send, this.connection);
 				}		
 			}

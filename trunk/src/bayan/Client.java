@@ -3,7 +3,6 @@ package bayan;
 import java.net.*;
 
 import java.io.*;
-import java.util.*;
 
 public class Client implements Runnable
 {
@@ -23,7 +22,6 @@ public class Client implements Runnable
 		
 		//hard coded port for now
 		int port = 8787;
-		int count = 0;
 		//instream from standard input for commands
 
 		
@@ -73,36 +71,28 @@ public class Client implements Runnable
 			String fromServer, fromUser;
 	
 			//TODO: something sketchy might be happening with "bye" for dc
-			//listener
+			//listening thread
 			if (this.ID == 0)
 			{
-				boolean quit = false;
-				while ((fromServer = inFromServer.readLine()) != null && quit == false)
+				while ((fromServer = inFromServer.readLine()).compareTo("1337 DISCONNECT") != 0)
 				{
 					fromServer = fromServer.replace("~", "\n");
-					System.out.println(fromServer);
-					if (fromServer.indexOf("Goodbye!") > -1)
-					{
-						quit = true;	
-					}
+					String response = clientParse(fromServer);
+					System.out.println(response);
+					//System.out.flush();
 				}
+				System.out.print(" Closing connection. . .");
 				connection.close();
-				
+				System.out.print(" COMPLETE.");
 			}
-			//sender
+			//sending thread
 			else if (this.ID == 1)
 			{
 				boolean quit = false;
-				while ((fromUser = inFromUser.readLine()) != null && quit == false)
+				while (((fromUser = inFromUser.readLine()).compareTo("bye") != 0))
 				{
-					if (fromUser.compareTo("bye") == 0)
-					{
-						quit = true;
-						fromUser = "crosby87 " + fromUser;
-						out.println(fromUser);
-					
-					}
-					else if (fromUser.compareTo("help") == 0)
+	
+					if (fromUser.compareTo("help") == 0)
 					{
 						printHelp();
 					}
@@ -111,11 +101,11 @@ public class Client implements Runnable
 					{
 						fromUser = "crosby87 " + fromUser;
 						out.println(fromUser);
-					}
+					}			
 				}
-				connection.close();
-				System.out.println("No longer taking commands, you are disconnected.");
 				
+				fromUser = "crosby87 " + fromUser;
+				out.println(fromUser);			
 			}
 		}
 		catch (Exception e)
@@ -124,7 +114,7 @@ public class Client implements Runnable
 		}
 	
 	}
-	
+
 	public void printHelp()
 	{
 		System.out.println("-----------------------------------------------------------------------------");
@@ -145,5 +135,19 @@ public class Client implements Runnable
 		System.out.println("whisper NAME MSG 	- 	private message MSG to person NAME.");
 		System.out.println("bcast PSEUDO MSG 	- 	broadcast MSG with name PSEUDO (admin command only).");
 		System.out.println("-----------------------------------------------------------------------------");
+	}
+	
+	public String clientParse(String msg)
+	{
+		String message = "";
+		if (msg.indexOf("200 OK") > -1)
+		{
+			message = msg.replace("200 OK", "");
+		}
+		else if (msg.indexOf("400 ERROR") > -1)
+		{
+			message = msg.replace("400 ERROR", "");
+		}
+		return message;
 	}
 }

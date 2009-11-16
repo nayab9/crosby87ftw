@@ -1,6 +1,4 @@
 package april;
-import java.net.*;
-import java.io.*;
 import java.util.*;
 /**
  * 
@@ -64,7 +62,7 @@ public class Game {
 		return this.turn;
 	}
 	
-	public ArrayList getObservers(){
+	public ArrayList<Player> getObservers(){
 		return this.observers;
 	}
 	
@@ -176,7 +174,7 @@ public class Game {
 	 * Check if the current move made the player win the game
 	 * @return boolean
 	 */
-	public boolean gameOver() { //TODO: change back to private
+	public boolean gameOver() {
 		boolean gameOver = true;
 		
 		for(int i = 0; i < numOfSets; i++) {
