@@ -627,9 +627,7 @@ public class Server implements Runnable
 						sendString(send, this.connection);
 					}
 				}
-				//TODO: pretty sure the cleanup works fine, but something sketchy
-				//is happening on disconnect, its not properly disconnecting without
-				//the client typing an extra command... might be a client.java issue
+				//cleanup all data structures when a player quits
 				else if (response[0].compareTo("bye") == 0)
 				{
 					boolean inGame = false, observer = false;
