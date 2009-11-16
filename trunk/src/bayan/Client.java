@@ -1,7 +1,6 @@
 package bayan;
 
 import java.net.*;
-
 import java.io.*;
 
 public class Client implements Runnable
@@ -23,7 +22,6 @@ public class Client implements Runnable
 		//hard coded port for now
 		int port = 8787;
 		//instream from standard input for commands
-
 		
 		//create socket
 		Socket connection = null;
@@ -43,7 +41,6 @@ public class Client implements Runnable
 		System.out.println("Client Initialized . . .");
 	
 		Runnable runnable1 = new Client(connection, 0);
-		//count++;
 		Thread thread1 = new Thread(runnable1);
 		thread1.start();
 		
@@ -70,7 +67,6 @@ public class Client implements Runnable
 			
 			String fromServer, fromUser;
 	
-			//TODO: something sketchy might be happening with "bye" for dc
 			//listening thread
 			if (this.ID == 0)
 			{
@@ -88,7 +84,6 @@ public class Client implements Runnable
 			//sending thread
 			else if (this.ID == 1)
 			{
-				boolean quit = false;
 				while (((fromUser = inFromUser.readLine()).compareTo("bye") != 0))
 				{
 	
@@ -118,7 +113,7 @@ public class Client implements Runnable
 	public void printHelp()
 	{
 		System.out.println("-----------------------------------------------------------------------------");
-		System.out.println("                              LIST OF COMMANDS                               ");
+		System.out.println("                       LIST OF DEFAULT COMMANDS                              ");
 		System.out.println("-----------------------------------------------------------------------------");
 		System.out.println("help 			- 	brings up this menu obviously.");
 		System.out.println("login NAME 		- 	where NAME is your unique login name.");
@@ -126,14 +121,19 @@ public class Client implements Runnable
 		System.out.println("bye 			- 	disconnect from server.");
 		System.out.println("games 			- 	displays current ongoing games listed by their ID numbers.");
 		System.out.println("who 			- 	displays all currently logged in players who are available.");
-		System.out.println("who2 			- 	displays all currently logged in players.");
 		System.out.println("play NAME 		- 	request a game with player NAME.");
 		System.out.println("observe X 		- 	allows you to observe game with a game ID of X.");
 		System.out.println("unobserve X 		- 	stop observing game with game ID of X");
 		/////////////////////////////////secret commands remove these later//////////////////////////////////
-		System.out.println("crosby doesnt quit 	- 	win your game instantly.");
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("                         LIST OF BONUS COMMANDS                              ");
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("who2 			- 	displays all currently logged in players.");
+		System.out.println("whoami			- 	displays detailed information about yourself");
+		System.out.println("login NAME PASS		- 	where NAME is your unique login name and PASS is password.");		
+		System.out.println("crosby doesnt quit 	- 	win your game instantly (admin only).");
 		System.out.println("whisper NAME MSG 	- 	private message MSG to person NAME.");
-		System.out.println("bcast PSEUDO MSG 	- 	broadcast MSG with name PSEUDO (admin command only).");
+		System.out.println("bcast PSEUDO MSG 	- 	broadcast MSG with name PSEUDO (admin only).");
 		System.out.println("-----------------------------------------------------------------------------");
 	}
 	

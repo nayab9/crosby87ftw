@@ -14,7 +14,6 @@ public class Server implements Runnable
 	//global arraylist for players, volatile so that it is synchronized
 	public static volatile ArrayList<Player> playerList = new ArrayList<Player>();
 	public static volatile ArrayList<Game> gameList = new ArrayList<Game>();
-	public static volatile ArrayList<Thread> threadList = new ArrayList<Thread>();
 	
 	public static void main(String[] args)
 	{
@@ -42,7 +41,6 @@ public class Server implements Runnable
 				Thread thread = new Thread(runnable);
 				//start executing thread block code
 				//provided by the run() method
-				threadList.add(thread);
 				thread.start();
 			}
 		}
@@ -71,7 +69,7 @@ public class Server implements Runnable
 			boolean logged = false;
 			
 			//server asks the client to enter a command
-			outputLine = "400 OK Welcome to the Game of Nim, type 'help' without quotes for a list of commands." + newline;
+			outputLine = "200 OK Welcome to the Game of Nim, type 'help' without quotes for a list of commands." + newline;
 			out.println(outputLine);
 		
 			String send = "";
@@ -90,7 +88,7 @@ public class Server implements Runnable
 				{
 					
 					boolean exists = false;
-					//successful login, create new player, add to player list
+					//check if the player name is unique
 					for (int i = 0; i < playerList.size(); i++)
 					{
 						Player temp;
@@ -105,6 +103,25 @@ public class Server implements Runnable
 					{
 						send = "400 ERROR That username is taken, please pick another one." + newline;
 					}
+					else if ((response[1].compareTo("bayan") == 0 || response[1].compareTo("april") == 0 || response[1].compareTo("justin") == 0) 
+								&& response.length > 2)
+					{
+						if (response[2].compareTo("crosbyftw") == 0)
+						{
+							logged = true;
+							playerList.add(new Player(response[1], this.connection, this.ID));
+							send = "200 OK Welcome " + response[1] + ", you are now logged in as an admin." + newline;
+						}
+						else
+						{
+							send = "400 ERROR Incorrect admin password." + newline;
+						}
+					}
+					else if ((response[1].compareTo("bayan") == 0 || response[1].compareTo("april") == 0 || response[1].compareTo("justin") == 0) 
+							&& response.length < 3)
+					{
+						send = "400 ERROR You didnt specify a password, try logging in again." + newline;
+					}					
 					else
 					{	
 						logged = true;
@@ -172,6 +189,7 @@ public class Server implements Runnable
 					//if both players are available
 					if (playerAindex > -1 && playerBindex > -1 && (!(playerA.compareTo(playerB)==0)) )
 					{
+						String format = " ------------------------" + newline;
 						//set players to busy now
 						A.setBusy(true);
 						B.setBusy(true);
@@ -181,12 +199,12 @@ public class Server implements Runnable
 						//add it to global game list
 						gameList.add(game);
 						
-						send = "200 OK You are now in a game with " + B.getUserName() + "." + newline;
+						send = "200 OK You are now in a game with " + B.getUserName() + "." + newline + newline;
 						//set the output of initialized game
-						send += output;
+						send += format + output + format;
 						sendString(send, A.getSocket());
-						send = "200 OK You are now in a game with " + A.getUserName() + "." + newline;
-						send += output;
+						send = "200 OK You are now in a game with " + A.getUserName() + "." + newline + newline;
+						send += format + output + format;
 						sendString(send, B.getSocket());
 						//need to also tell them whos turn it is
 						Player turn = game.getTurn();
@@ -244,7 +262,7 @@ public class Server implements Runnable
 							temp.removeObserver(temp2);
 							send += "200 OK You are no longer observing game: "+temp.getID()+ newline;
 						}else{
-							send += "No such game or you are not observing that game."+newline;
+							send += "400 ERROR No such game or you are not observing that game."+newline;
 						}
 						sendString(send,this.connection);
 					}
@@ -315,7 +333,7 @@ public class Server implements Runnable
 					if (playerList.size() > 1)
 					{
 						send += "200 OK Total number of people logged into server: " + playerList.size() + newline;			
-						send += "Here is who else is logged in and currently available: " + newline;
+						send += " Here is who else is logged in and currently available: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							Player temp;
@@ -361,6 +379,97 @@ public class Server implements Runnable
 					}
 					sendString(send, this.connection);
 				}
+				else if(response[0].compareTo("whoami") == 0  && logged == true)
+				{
+					Player me = null;
+					Game myGame = null;
+					for (int i = 0; i < playerList.size(); i++)
+					{
+						if (this.ID == playerList.get(i).getThreadId())
+						{
+							me = playerList.get(i);
+						}
+					}
+					send += "200 OK I am logged in as: " + me.getUserName();
+					
+					if (me.getUserName().compareTo("bayan")==0 || me.getUserName().compareTo("bayan")==0 ||
+							me.getUserName().compareTo("justin")==0)
+					{
+						send += " {admin}" + newline;
+					}
+					else
+					{
+						send += newline;
+					}
+					
+					if (me.isBusy())
+					{
+						send += " I am currently busy in a game." + newline;
+						for (int i = 0; i < gameList.size(); i++)
+						{
+							if (gameList.get(i).getPlayerA().getThreadId() == this.ID || 
+									gameList.get(i).getPlayerB().getThreadId() == this.ID)
+							{
+								myGame = gameList.get(i);
+							}
+						}
+						
+						send += "\t" + "I am in game: " + myGame.getID() + newline;
+						if (myGame.getPlayerA().getThreadId() == this.ID)
+							send += "\t" + "I am playing against: " + myGame.getPlayerB().getUserName() + newline;
+						else
+							send += "\t" + "I am playing against: " + myGame.getPlayerA().getUserName() + newline;
+					}
+					else
+					{
+						send += " I am currently available to play a game." + newline;
+					}
+					boolean observer = false;
+					Game game = null;
+					for (int i = 0; i < gameList.size(); i++)
+					{
+						game = gameList.get(i);				
+						for (int j = 0; j < game.getObservers().size(); j++)
+						{
+							Player temp = null;
+							temp = (Player) game.getObservers().get(i);
+							if ( this.ID == temp.getThreadId() && temp != null ) 
+							{
+								observer = true;
+							} 
+						}
+
+					}						
+					
+					if (observer)
+					{
+						send += " I am observing: " + newline;
+						for (int j = 0; j < gameList.size(); j++)
+						{
+							game = gameList.get(j);
+							
+							for (int i = 0; i < game.getObservers().size(); i++)
+							{
+								Player temp = null;
+								temp = (Player) game.getObservers().get(i);
+								if (temp != null && temp.getThreadId() == this.ID)
+								{
+									send += "\t" + "Game #" + game.getID() + ": " + game.getPlayerA().getUserName() +
+												" vs " + game.getPlayerB().getUserName() + newline;
+								}
+							}
+						}
+					}
+					
+					send += " My unique ID is: " + me.getThreadId() + newline;
+					send += " Remote port is: " + me.getSocket().getLocalPort() + newline;
+					send += " Remote address is: " + me.getSocket().getInetAddress().getHostName() + " {" + 
+										me.getSocket().getInetAddress().getHostAddress() + "}" + newline;
+					send += " Local port: " + me.getSocket().getPort() + newline;
+					send += " Local address: " + me.getSocket().getInetAddress().getLocalHost() + newline;
+					
+					sendString(send, this.connection);
+				}
 				//games
 				else if (response[0].compareTo("games") == 0  && logged == true)
 				{
@@ -369,7 +478,7 @@ public class Server implements Runnable
 						for (int i = 0; i < gameList.size(); i++){
 							Game temp;
 							temp = gameList.get(i);
-							send += temp.getID()+" : "+temp.getPlayerA().getUserName() + " vs " + temp.getPlayerB().getUserName() + newline;
+							send += " Game #" + temp.getID()+" : "+temp.getPlayerA().getUserName() + " vs " + temp.getPlayerB().getUserName() + newline;
 						}
 					}else{
 						send += "200 OK There are currently no games."+ newline;
@@ -430,13 +539,14 @@ public class Server implements Runnable
 						//check if valid move
 						if ( validInput && game.isValidMove(n, s) )
 						{
+							String format = newline + " ------------------------" + newline;
 							//valid move, so do it
-							send += "200 OK " + game.remove(n, s) + newline;
+							send += "200 OK " + format + game.remove(n, s) + format;
 							
 							//if the game is not over, keep going
 							if (!game.gameOver())
 							{
-								send += "It is " + game.getTurn().getUserName() + "'s turn." + newline;
+								send += " It is " + game.getTurn().getUserName() + "'s turn." + newline;
 															
 								sendString(send, A.getSocket());
 								sendString(send, B.getSocket());
@@ -591,8 +701,10 @@ public class Server implements Runnable
 							
 						}
 					}	
-					//check if its their turn
-					if ( inGame && response[1].compareTo("doesnt")==0 &&  response[2].compareTo("quit")==0)
+					
+					if ( (inGame && response[1].compareTo("doesnt")==0 && response[2].compareTo("quit")==0) && 
+							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 || 
+								A.getUserName().compareTo("april") == 0 ))
 					{
 						send += "200 OK " + A.getUserName() + " automatically wins because crosby is better then you." + newline;
 						send += "CROSBY. DOESNT. QUIT." + newline;
@@ -620,10 +732,16 @@ public class Server implements Runnable
 						A.setBusy(false);
 						B.setBusy(false);
 					}
-					
+					else if (inGame && (response[1].compareTo("doesnt")!=0 || response[2].compareTo("quit")!=0) && 
+							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 || 
+							A.getUserName().compareTo("april") == 0))
+					{
+						send += "200 OK You typed it wrong, try again." + newline;
+						sendString(send, this.connection);						
+					}
 					else
 					{
-						send += "200 OK You are awesome." + newline;
+						send += "200 OK You are awesome for trying, but you have to be in a game AND an admin to use this command." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -708,12 +826,11 @@ public class Server implements Runnable
 								}
 							}
 						}
-
 					}
 					//only game cleanup
 					else if ( inGame && !observer)
 					{
-						send += "200 OK " + A.getUserName() + " is quitting the game, game over, " + 
+						send += "200 OK " + A.getUserName() + " is quitting the game, forfeit, " + 
 							B.getUserName() + " wins!" + newline;
 				
 						//message all observers to say game is now ending due to leaver

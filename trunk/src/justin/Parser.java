@@ -77,7 +77,7 @@ public class Parser {
 	//used for parsing the bye,games, and who commands
 	public static String[] NoArgument(String[] tokens){
 		String[] result;
-		if(tokens[1].compareTo("bye") == 0 || tokens[1].compareTo("games") == 0 || tokens[1].compareTo("who") == 0 || tokens[1].compareTo("who2") == 0){
+		if(tokens[1].compareTo("bye") == 0 || tokens[1].compareTo("games") == 0 || tokens[1].compareTo("who") == 0 || tokens[1].compareTo("who2") == 0 || tokens[1].compareTo("whoami") == 0){
 			result = new String[1];
 			result[0] = tokens[1];
 		}else{
@@ -89,7 +89,7 @@ public class Parser {
 	//used for parsing the remove command
 	public static String[] TwoArgument(String[] tokens){
 		String[] result;
-		if( tokens[1].compareTo("remove") == 0 || tokens[1].compareTo("crosby") == 0 || tokens[1].compareTo("whisper") == 0 || tokens[1].compareTo("bcast") == 0){
+		if( tokens[1].compareTo("remove") == 0 || tokens[1].compareTo("crosby") == 0 || tokens[1].compareTo("whisper") == 0 || tokens[1].compareTo("bcast") == 0 || tokens[1].compareTo("login") == 0){
 			result = new String[3];
 			result[0] = tokens[1];
 			result[1] = tokens[2];
