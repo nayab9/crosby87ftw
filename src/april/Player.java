@@ -2,14 +2,6 @@ package april;
 
 import java.net.*;
 
-/**
- * 
- */
-
-/**
- * @author April
- *
- */
 public class Player {
 	
 	private String userName;

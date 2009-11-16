@@ -1,13 +1,6 @@
 package april;
 import java.util.*;
-/**
- * 
- */
 
-/**
- * @author April
- *
- */
 public class Game {
 	private static int counter;
 	private int id;
@@ -87,13 +80,13 @@ public class Game {
 			items[i] = (int)(Math.random() * 7) + 1;
 		}
 		
-		buffer.append("set  ");
+		buffer.append(" set  ");
 		for(int i = 1; i < numOfSets + 1; i++) {
 			buffer.append(i + " ");
 		}
 		buffer.append(newline);
 		
-		buffer.append("size ");
+		buffer.append(" size ");
 		for(int i = 0; i < numOfSets; i++) {
 			buffer.append(items[i] + " ");
 		}
@@ -126,15 +119,15 @@ public class Game {
 	 */
 	public String remove(int n, int s) {
 		StringBuffer buffer = new StringBuffer();
-		
-		buffer.append(turn.getUserName() + " takes " + n + " from set " + s);
-		buffer.append(newline);
+		String format = newline + " ------------------------" + newline;
+		buffer.append(" " + turn.getUserName() + " takes " + n + " from set " + s + format);
 
 		items[s-1] -= n;
 		
 		for(int i = 0; i < numOfSets; i++) {
-			buffer.append(items[i] + " ");
+			buffer.append(" " + items[i] + " ");
 		}
+		
 		
 		if (!gameOver()) {
 			if( turn.getThreadId() == playerA.getThreadId() ) {
@@ -144,7 +137,7 @@ public class Game {
 			}			
 		} else {
 			// Print winner
-			buffer.append(newline + turn.getUserName() + " wins.");
+			buffer.append(format + " " + turn.getUserName() + " wins!");
 		}
 		
 		return buffer.toString();
