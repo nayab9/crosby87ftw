@@ -242,29 +242,36 @@ public class Server implements Runnable
 								i = gameList.size();
 							}
 						}
-						for(int j = 0; j < playerList.size(); j++){
-							if(playerList.get(j).getThreadId() == this.ID){
-								temp2 = playerList.get(j);
-								j = playerList.size();
-							}
-						}
-						//cycle through observer list of specified game
-						for (int i = 0; i < temp.getObservers().size(); i++)
+						if(temp != null)
 						{
-							Player observer = null;
-							observer = (Player) temp.getObservers().get(i);
-							if (observer.getThreadId() == this.ID)
-							{
-								isObserver = true;
+							for(int j = 0; j < playerList.size(); j++){
+								if(playerList.get(j).getThreadId() == this.ID){
+									temp2 = playerList.get(j);
+									j = playerList.size();
+								}
 							}
+							//cycle through observer list of specified game
+							for (int i = 0; i < temp.getObservers().size(); i++)
+							{
+								Player observer = null;
+								observer = (Player) temp.getObservers().get(i);
+								if (observer.getThreadId() == this.ID)
+								{
+									isObserver = true;
+								}
+							}
+							if(temp != null && temp2 != null && isObserver){
+								temp.removeObserver(temp2);
+								send += "200 OK You are no longer observing game: "+temp.getID()+ newline;
+							}else{
+								send += "400 ERROR No such game or you are not observing that game."+newline;
+							}
+							sendString(send,this.connection);
 						}
-						if(temp != null && temp2 != null && isObserver){
-							temp.removeObserver(temp2);
-							send += "200 OK You are no longer observing game: "+temp.getID()+ newline;
-						}else{
-							send += "400 ERROR No such game or you are not observing that game."+newline;
+						else
+						{
+							sendString("400 ERROR Invalid input, try again." + newline, this.connection);
 						}
-						sendString(send,this.connection);
 					}
 					else
 					{
@@ -296,31 +303,38 @@ public class Server implements Runnable
 								i = gameList.size();
 							}
 						}
-						for(int j = 0; j < playerList.size(); j++){
-							if(playerList.get(j).getThreadId() == this.ID){
-								temp2 = playerList.get(j);
-								j = playerList.size();
-							}
-						}
-						//cycle through observer list of specified game
-						for (int i = 0; i < temp.getObservers().size(); i++)
+						if(temp != null)
 						{
-							Player observer = null;
-							observer = (Player) temp.getObservers().get(i);
-							if (observer.getThreadId() == this.ID)
+							for(int j = 0; j < playerList.size(); j++){
+								if(playerList.get(j).getThreadId() == this.ID){
+									temp2 = playerList.get(j);
+									j = playerList.size();
+								}
+							}
+							//cycle through observer list of specified game
+							for (int i = 0; i < temp.getObservers().size(); i++)
 							{
-								isObserver = true;
+								Player observer = null;
+								observer = (Player) temp.getObservers().get(i);
+								if (observer.getThreadId() == this.ID)
+								{
+									isObserver = true;
+								}
 							}
+							if(temp != null && temp2 != null && (temp.getPlayerA().getThreadId() != this.ID || temp.getPlayerB().getThreadId() != this.ID)
+																&& isObserver == false )
+							{
+								temp.addObserver(temp2);
+								send += "200 OK You are now an observer of Game : "+temp.getID()+ newline;
+							}else{
+								send += "400 ERROR You can't observe that game, either it doesn't exist, you are a player in it, or you are already an observer. "+newline;
+							}
+							sendString(send,this.connection);
 						}
-						if(temp != null && temp2 != null && (temp.getPlayerA().getThreadId() != this.ID || temp.getPlayerB().getThreadId() != this.ID)
-															&& isObserver == false )
+						else
 						{
-							temp.addObserver(temp2);
-							send += "200 OK You are now an observer of Game : "+temp.getID()+ newline;
-						}else{
-							send += "400 ERROR You can't observe that game, either it doesn't exist, you are a player in it, or you are already an observer. "+newline;
+							sendString("400 ERROR Invalid game ID." + newline, this.connection);
 						}
-						sendString(send,this.connection);
 					}
 					else
 					{
@@ -330,6 +344,7 @@ public class Server implements Runnable
 				//who command
 				else if(response[0].compareTo("who") == 0  && logged == true)
 				{
+					boolean moreThanYou = false;
 					if (playerList.size() > 1)
 					{
 						send += "200 OK Total number of people logged into server: " + playerList.size() + newline;			
@@ -340,6 +355,7 @@ public class Server implements Runnable
 							temp = playerList.get(i);
 							if (temp.getThreadId() != this.ID && temp.isBusy() != true)
 							{
+								moreThanYou = true;
 								String availability = "available";
 								if (temp.isBusy())
 									availability = "busy";
@@ -352,7 +368,15 @@ public class Server implements Runnable
 					{
 						send += "200 OK You are the only person logged in right now." + newline;
 					}
-					sendString(send, this.connection);
+					if (moreThanYou)
+					{
+						sendString(send, this.connection);
+					}
+					else
+					{
+						send = "200 OK You are the only person available right now." + newline;
+						sendString(send, this.connection);
+					}
 				}
 				else if(response[0].compareTo("who2") == 0  && logged == true)
 				{
