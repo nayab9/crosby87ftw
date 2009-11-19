@@ -11,16 +11,16 @@ public class Client implements Runnable
 	public static void main(String[] args) 
 	{
 		//host provided via command line
-		//String host = args[0];
+		String host = args[0];
 		
 		//hard coded host for now
-		String host = "localhost";
+		//String host = "localhost";
 		
 		//port provided via command line
-		//int port = Integer.parseInt(args[1]);
+		int port = Integer.parseInt(args[1]);
 		
 		//hard coded port for now
-		int port = 8787;
+		//int port = 8787;
 		//instream from standard input for commands
 		
 		//create socket
