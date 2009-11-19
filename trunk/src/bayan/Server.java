@@ -21,7 +21,7 @@ public class Server implements Runnable
 		//int port = Integer.parseInt(args[0]);
 		
 		//hardcoded port for now
-		int port = 8787;
+		int port = 38330;
 		
 		//variable to increment thread identity
 		int count = 0;
