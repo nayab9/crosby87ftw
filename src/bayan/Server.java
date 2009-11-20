@@ -208,9 +208,9 @@ public class Server implements Runnable
 						sendString(send, B.getSocket());
 						//need to also tell them whos turn it is
 						Player turn = game.getTurn();
-						send = "200 OK It is " + turn.getUserName() + "'s turn." + newline;
-						sendString(send, A.getSocket());
-						sendString(send, B.getSocket());
+			
+						sendString(send = "200 OK Your turn." + newline, A.getSocket());
+						sendString(send = "200 OK It is " + turn.getUserName() + "'s turn." + newline, B.getSocket());
 
 					}				
 					else
@@ -374,7 +374,7 @@ public class Server implements Runnable
 					}
 					else
 					{
-						send = "200 OK You are the only person available right now." + newline;
+						send = "200 OK Nobody is available right now." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -570,10 +570,9 @@ public class Server implements Runnable
 							//if the game is not over, keep going
 							if (!game.gameOver())
 							{
-								send += " It is " + game.getTurn().getUserName() + "'s turn." + newline;
-															
-								sendString(send, A.getSocket());
-								sendString(send, B.getSocket());
+								String yourTurn = " Your turn.";
+								sendString(send + yourTurn + newline, B.getSocket());
+								sendString(send += " It is " + game.getTurn().getUserName() + "'s turn." + newline, A.getSocket());
 								for (int i = 0; i < game.getObservers().size(); i++)
 								{
 									Player temp;
@@ -772,28 +771,31 @@ public class Server implements Runnable
 				//cleanup all data structures when a player quits
 				else if (response[0].compareTo("bye") == 0)
 				{
+
 					boolean inGame = false, observer = false;
-					Game game = null;
+					Game game = null, chosen = null;
 					Player A = null, B = null;
+					ArrayList<Player> observers = null;
 					int gameID = 0;
 					//find if the player is in a game as a player or observer
 					for (int i = 0; i < gameList.size(); i++)
 					{
-						game = gameList.get(i);
-						A = game.getPlayerA();
-						B = game.getPlayerB();
+						chosen = gameList.get(i);
+						observers = chosen.getObservers();
 
 						//if the person requesting bye, is actually in a game
-						if ( (this.ID == game.getPlayerA().getThreadId()) )
+						if ( (this.ID == chosen.getPlayerA().getThreadId()) )
 						{
+							game = gameList.get(i);
 							gameID = game.getID();
 							inGame = true;
 							A = game.getPlayerA();
 							B = game.getPlayerB();
 						}
 						//pretending like i am player A to make life easier
-						else if ( (this.ID == game.getPlayerB().getThreadId()) )
+						else if ( (this.ID == chosen.getPlayerB().getThreadId()) )
 						{
+							game = gameList.get(i);
 							gameID = game.getID();
 							inGame = true;
 							A = game.getPlayerB();
@@ -801,11 +803,17 @@ public class Server implements Runnable
 						}
 						//observer case
 						//if this bye request is from a player who is registered in an observer list
-						else if ( (this.ID == ((Player) game.getObservers().get(i)).getThreadId() )) 
+						for (int j = 0; j < observers.size(); j++)
 						{
-							observer = true;
+							Player temp = null;
+							temp = (Player) observers.get(j);
+							if (temp.getThreadId() == this.ID)
+							{
+								observer = true;
+							}
 						} 
 					}
+
 					//game + observer cleanup
 					if ( inGame && observer )
 					{
@@ -854,6 +862,7 @@ public class Server implements Runnable
 					//only game cleanup
 					else if ( inGame && !observer)
 					{
+						System.out.println("User requested bye, reached the else if for ingame but not observer");
 						send += "200 OK " + A.getUserName() + " is quitting the game, forfeit, " + 
 							B.getUserName() + " wins!" + newline;
 				
