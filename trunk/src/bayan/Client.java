@@ -77,9 +77,9 @@ public class Client implements Runnable
 					System.out.println(response);
 					//System.out.flush();
 				}
-				System.out.print(" Closing connection. . .");
+				System.out.println(" Closing connection. . .");
 				connection.close();
-				System.out.print(" COMPLETE.");
+				System.out.println(" COMPLETE.");
 			}
 			//sending thread
 			else if (this.ID == 1)
