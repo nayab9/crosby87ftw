@@ -12,29 +12,23 @@ public class Client implements Runnable
 		//host provided via command line
 		String host = args[0];
 		
-		//hard coded host for now
-		//String host = "localhost";
-		
-		//port provided via command line
-		int port = Integer.parseInt(args[1]);
-		
-		//hard coded port for now
-		//int port = 8787;
-		//instream from standard input for commands
-		
 		//create socket
 		Socket connection = null;
 		try 
 		{
+			// port number provided by command line
+			int port = Integer.parseInt(args[1]);
 			connection = new Socket(host, port);
 		} 
-		catch (UnknownHostException e) 
+		catch (NumberFormatException nfe)
 		{
-			e.printStackTrace();
-		} 
+			System.out.println("Port number must be an integer.");
+			System.exit(0);
+		}
 		catch (IOException e) 
 		{
-			e.printStackTrace();
+			System.out.println("Unable to connect to "+host+" via port "+args[1]+".");
+			System.exit(0);
 		}
 
 		System.out.println("Client Initialized . . .");
