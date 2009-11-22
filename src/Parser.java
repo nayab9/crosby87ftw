@@ -1,4 +1,3 @@
-package justin;
 public class Parser {
 	public static int justin = 1;
 	
