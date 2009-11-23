@@ -70,7 +70,7 @@ public class Client implements Runnable
 					System.out.println(response);
 					//System.out.flush();
 				}
-				System.out.println(" Closing connection. . .");
+				System.out.print(" Closing connection. . .");
 				connection.close();
 				System.out.println(" COMPLETE.");
 			}
@@ -108,25 +108,25 @@ public class Client implements Runnable
 		System.out.println("-----------------------------------------------------------------------------");
 		System.out.println("                       LIST OF DEFAULT COMMANDS                              ");
 		System.out.println("-----------------------------------------------------------------------------");
-		System.out.println("help 			- 	brings up this menu obviously.");
-		System.out.println("login NAME 		- 	where NAME is your unique login name.");
-		System.out.println("remove N S 		- 	N is the number of items to remove from set S.");
-		System.out.println("bye 			- 	disconnect from server.");
-		System.out.println("games 			- 	displays current ongoing games listed by their ID numbers.");
-		System.out.println("who 			- 	displays all currently logged in players who are available.");
-		System.out.println("play NAME 		- 	request a game with player NAME.");
-		System.out.println("observe X 		- 	allows you to observe game with a game ID of X.");
-		System.out.println("unobserve X 		- 	stop observing game with game ID of X");
+		System.out.println("help			- brings up this menu obviously.");
+		System.out.println("login NAME		- where NAME is your unique login name.");
+		System.out.println("remove N S		- N is the number of items to remove from set S.");
+		System.out.println("bye			- disconnect from server.");
+		System.out.println("games			- displays current ongoing games listed by their ID numbers.");
+		System.out.println("who			- displays all currently logged in players who are available.");
+		System.out.println("play NAME		- request a game with player NAME.");
+		System.out.println("observe X		- allows you to observe game with a game ID of X.");
+		System.out.println("unobserve X		- stop observing game with game ID of X");
 		/////////////////////////////////secret commands remove these later//////////////////////////////////
 		System.out.println("-----------------------------------------------------------------------------");
 		System.out.println("                         LIST OF BONUS COMMANDS                              ");
 		System.out.println("-----------------------------------------------------------------------------");
-		System.out.println("who2 			- 	displays all currently logged in players.");
-		System.out.println("whoami			- 	displays detailed information about yourself");
-		System.out.println("login NAME PASS		- 	where NAME is your unique login name and PASS is password.");
-		System.out.println("crosby doesnt quit 	- 	win your game instantly (admin only).");
-		System.out.println("whisper NAME MSG 	- 	private message MSG to person NAME.");
-		System.out.println("bcast PSEUDO MSG 	- 	broadcast MSG with name PSEUDO (admin only).");
+		System.out.println("who2			- displays all currently logged in players.");
+		System.out.println("whoami			- displays detailed information about yourself");
+		System.out.println("login NAME PASS		- where NAME is your unique login name and PASS is password.");
+		System.out.println("crosby doesnt quit	- win your game instantly (admin only).");
+		System.out.println("whisper NAME MSG	- private message MSG to person NAME.");
+		System.out.println("bcast PSEUDO MSG	- broadcast MSG with name PSEUDO (admin only).");
 		System.out.println("-----------------------------------------------------------------------------");
 	}
 
