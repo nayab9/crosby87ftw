@@ -344,12 +344,12 @@ public class Server implements Runnable
 					if (playerList.size() > 1)
 					{
 						send += "CROSBY87 200 OK Total number of people logged into server: " + playerList.size() + newline;
-						send += " Here is who else is logged in and currently available: " + newline;
+						send += " Players who are logged in and currently available: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							Player temp;
 							temp = playerList.get(i);
-							if (temp.getThreadId() != this.ID && temp.isBusy() != true)
+							if (!temp.isBusy())
 							{
 								moreThanYou = true;
 								String availability = "available";
@@ -379,7 +379,7 @@ public class Server implements Runnable
 					if (playerList.size() > 1)
 					{
 						send += "CROSBY87 200 OK Total number of people logged into server: " + playerList.size() + newline;
-						send += "Here is a complete list of who is logged in: " + newline;
+						send += " Complete list of all players logged in: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							Player temp;
@@ -925,7 +925,7 @@ public class Server implements Runnable
 				}
 				else if (logged == false)
 				{
-					send = "CROSBY87 400 ERROR You must login to use any command other then help." + newline;
+					send = "CROSBY87 400 ERROR You must login to use any command other than help." + newline;
 					sendString(send, this.connection);
 				}
 				else
