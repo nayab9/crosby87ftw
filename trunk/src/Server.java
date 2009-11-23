@@ -611,7 +611,7 @@ public class Server implements Runnable
 					}
 					else
 					{
-						send += "400 ERROR Hold your 'horeses' - You are not in a game, or its not your turn." + newline;
+						send += "400 ERROR Hold your 'horses' - You are not in a game, or its not your turn." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -725,7 +725,7 @@ public class Server implements Runnable
 							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 || 
 								A.getUserName().compareTo("april") == 0 ))
 					{
-						send += "200 OK " + A.getUserName() + " automatically wins because crosby is better then you." + newline;
+						send += "200 OK " + A.getUserName() + " automatically wins because crosby is better than you." + newline;
 						send += "CROSBY. DOESNT. QUIT." + newline;
 						
 						//message all observers to say game is now ending
