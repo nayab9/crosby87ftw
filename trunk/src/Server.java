@@ -10,18 +10,18 @@ public class Server implements Runnable
 	//global arraylist for players, volatile so that it is synchronized
 	public static volatile ArrayList<Player> playerList = new ArrayList<Player>();
 	public static volatile ArrayList<Game> gameList = new ArrayList<Game>();
-	
+
 	public static void main(String[] args)
 	{
 		//port provided via command line later
 		//int port = Integer.parseInt(args[0]);
-		
+
 		//hardcoded port for now
 		int port = 38330;
-		
+
 		//variable to increment thread identity
 		int count = 0;
-		
+
 		try
 		{
 			ServerSocket socket1 = new ServerSocket(port);
@@ -42,7 +42,7 @@ public class Server implements Runnable
 		}
 		catch (Exception e) {}
 	}
-	
+
 	Server(Socket s, int i)
 	{
 		this.connection = s;
@@ -53,36 +53,36 @@ public class Server implements Runnable
 	{
 		try
 		{
-			BufferedReader inFromClient = 
-				new BufferedReader(new InputStreamReader(connection.getInputStream())); 
+			BufferedReader inFromClient =
+				new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
-			
+
 			String inputLine, outputLine;
-			
+
 			//symbolizes a new line for print formatting at client side.
 			String newline = "~";
 			//boolean to determine if they are already logged in
 			boolean logged = false;
-			
+
 			//server asks the client to enter a command
-			outputLine = "200 OK Welcome to the Game of Nim, type 'help' without quotes for a list of commands." + newline;
+			outputLine = "CROSBY87 200 OK Welcome to the Game of Nim, type 'help' without quotes for a list of commands." + newline;
 			out.println(outputLine);
-		
+
 			String send = "";
-			
+
 			while ((inputLine = inFromClient.readLine()) != null)
-			{	
+			{
 				send = "";
 				//debugging print statement, server prints client request
 				System.out.println("RAW UNPARSED CLIENT REQUEST: " + inputLine);
-				
+
 				//call parser to parse the requested command
 				String[] response = Parser.GetCommand(inputLine);
-				
+
 				//if its a login, and they have never logged in yet
 				if (response[0].compareTo("login") == 0 && logged == false)
 				{
-					
+
 					boolean exists = false;
 					//check if the player name is unique
 					for (int i = 0; i < playerList.size(); i++)
@@ -92,43 +92,43 @@ public class Server implements Runnable
 						//if requesting player is already signed in
 						if (temp.getUserName().compareTo(response[1]) == 0)
 						{
-							exists = true;						
+							exists = true;
 						}
 					}
 					if (exists)
 					{
-						send = "400 ERROR That username is taken, please pick another one." + newline;
+						send = "CROSBY87 400 ERROR That username is taken, please pick another one." + newline;
 					}
-					else if ((response[1].compareTo("bayan") == 0 || response[1].compareTo("april") == 0 || response[1].compareTo("justin") == 0) 
+					else if ((response[1].compareTo("bayan") == 0 || response[1].compareTo("april") == 0 || response[1].compareTo("justin") == 0)
 								&& response.length > 2)
 					{
 						if (response[2].compareTo("crosbyftw") == 0)
 						{
 							logged = true;
 							playerList.add(new Player(response[1], this.connection, this.ID));
-							send = "200 OK Welcome " + response[1] + ", you are now logged in as an admin." + newline;
+							send = "CROSBY87 200 OK Welcome " + response[1] + ", you are now logged in as an admin." + newline;
 						}
 						else
 						{
-							send = "400 ERROR Incorrect admin password." + newline;
+							send = "CROSBY87 400 ERROR Incorrect admin password." + newline;
 						}
 					}
-					else if ((response[1].compareTo("bayan") == 0 || response[1].compareTo("april") == 0 || response[1].compareTo("justin") == 0) 
+					else if ((response[1].compareTo("bayan") == 0 || response[1].compareTo("april") == 0 || response[1].compareTo("justin") == 0)
 							&& response.length < 3)
 					{
-						send = "400 ERROR You didnt specify a password, try logging in again." + newline;
-					}					
+						send = "CROSBY87 400 ERROR You didnt specify a password, try logging in again." + newline;
+					}
 					else
-					{	
+					{
 						logged = true;
 						playerList.add(new Player(response[1], this.connection, this.ID));
-						send = "200 OK Welcome " + response[1] + ", you are now logged in." + newline;
+						send = "CROSBY87 200 OK Welcome " + response[1] + ", you are now logged in." + newline;
 					}
 					//default list of current players in the system upon login
 /*
 					if (playerList.size() > 1)
 					{
-						send += "Number of people logged in: " + playerList.size() + newline;			
+						send += "Number of people logged in: " + playerList.size() + newline;
 						send += "Here is who is logged in: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
@@ -138,7 +138,7 @@ public class Server implements Runnable
 							{
 								send += "\t" + temp.getUserName() + " {is in game: " + temp.isBusy() + "}" + newline;
 							}
-						}			
+						}
 					}
 					else
 					{
@@ -146,13 +146,13 @@ public class Server implements Runnable
 					}
 */
 					//server statement for information
-					
+
 					sendString(send, this.connection);
 				}
 				//if they try to log in again
 				else if (response[0].compareTo("login") == 0 && logged == true)
 				{
-					send = "400 ERROR You are already logged in." + newline;
+					send = "CROSBY87 400 ERROR You are already logged in." + newline;
 					sendString(send, this.connection);
 				}
 				//do the rest of these clauses need to be surrounded by an if (logged in?)
@@ -194,24 +194,24 @@ public class Server implements Runnable
 						String output = game.initialize();
 						//add it to global game list
 						gameList.add(game);
-						
-						send = "200 OK You are now in a game with " + B.getUserName() + "." + newline + newline;
+
+						send = "CROSBY87 200 OK You are now in a game with " + B.getUserName() + "." + newline + newline;
 						//set the output of initialized game
 						send += format + output + format;
 						sendString(send, A.getSocket());
-						send = "200 OK You are now in a game with " + A.getUserName() + "." + newline + newline;
+						send = "CROSBY87 200 OK You are now in a game with " + A.getUserName() + "." + newline + newline;
 						send += format + output + format;
 						sendString(send, B.getSocket());
 						//need to also tell them whos turn it is
 						Player turn = game.getTurn();
-			
-						sendString(send = "200 OK Your turn." + newline, A.getSocket());
-						sendString(send = "200 OK It is " + turn.getUserName() + "'s turn." + newline, B.getSocket());
 
-					}				
+						sendString(send = "CROSBY87 200 OK Your turn." + newline, A.getSocket());
+						sendString(send = "CROSBY87 200 OK It is " + turn.getUserName() + "'s turn." + newline, B.getSocket());
+
+					}
 					else
 					{
-						send += "400 ERROR Error: one of you is already in a game, opponent does not exist, or you requested yourself." + newline;
+						send += "CROSBY87 400 ERROR Error: one of you is already in a game, opponent does not exist, or you requested yourself." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -258,20 +258,20 @@ public class Server implements Runnable
 							}
 							if(temp != null && temp2 != null && isObserver){
 								temp.removeObserver(temp2);
-								send += "200 OK You are no longer observing game: "+temp.getID()+ newline;
+								send += "CROSBY87 200 OK You are no longer observing game: "+temp.getID()+ newline;
 							}else{
-								send += "400 ERROR No such game or you are not observing that game."+newline;
+								send += "CROSBY87 400 ERROR No such game or you are not observing that game."+newline;
 							}
 							sendString(send,this.connection);
 						}
 						else
 						{
-							sendString("400 ERROR Invalid input, try again." + newline, this.connection);
+							sendString("CROSBY87 400 ERROR Invalid input, try again." + newline, this.connection);
 						}
 					}
 					else
 					{
-						sendString("400 ERROR Invalid input, try again." + newline, this.connection);
+						sendString("CROSBY87 400 ERROR Invalid input, try again." + newline, this.connection);
 					}
 				}
 				else if(response[0].compareTo("observe") == 0  && logged == true)
@@ -287,8 +287,8 @@ public class Server implements Runnable
 					{
 						isValid = false;
 					}
-					
-					
+
+
 					if (isValid)
 					{
 						Game temp = null;
@@ -321,20 +321,20 @@ public class Server implements Runnable
 																&& isObserver == false )
 							{
 								temp.addObserver(temp2);
-								send += "200 OK You are now an observer of Game : "+temp.getID()+ newline;
+								send += "CROSBY87 200 OK You are now an observer of Game : "+temp.getID()+ newline;
 							}else{
-								send += "400 ERROR You can't observe that game, either it doesn't exist, you are a player in it, or you are already an observer. "+newline;
+								send += "CROSBY87 400 ERROR You can't observe that game, either it doesn't exist, you are a player in it, or you are already an observer. "+newline;
 							}
 							sendString(send,this.connection);
 						}
 						else
 						{
-							sendString("400 ERROR Invalid game ID." + newline, this.connection);
+							sendString("CROSBY87 400 ERROR Invalid game ID." + newline, this.connection);
 						}
 					}
 					else
 					{
-						sendString("400 ERROR Invalid game ID." + newline, this.connection);
+						sendString("CROSBY87 400 ERROR Invalid game ID." + newline, this.connection);
 					}
 				}
 				//who command
@@ -343,7 +343,7 @@ public class Server implements Runnable
 					boolean moreThanYou = false;
 					if (playerList.size() > 1)
 					{
-						send += "200 OK Total number of people logged into server: " + playerList.size() + newline;			
+						send += "CROSBY87 200 OK Total number of people logged into server: " + playerList.size() + newline;
 						send += " Here is who else is logged in and currently available: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
@@ -355,14 +355,14 @@ public class Server implements Runnable
 								String availability = "available";
 								if (temp.isBusy())
 									availability = "busy";
-								
+
 								send += "\t" + temp.getUserName() + " {status: " + availability + "}" + newline;
 							}
-						}			
+						}
 					}
 					else
 					{
-						send += "200 OK You are the only person logged in right now." + newline;
+						send += "CROSBY87 200 OK You are the only person logged in right now." + newline;
 					}
 					if (moreThanYou)
 					{
@@ -370,7 +370,7 @@ public class Server implements Runnable
 					}
 					else
 					{
-						send = "200 OK Nobody is available right now." + newline;
+						send = "CROSBY87 200 OK Nobody is available right now." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -378,24 +378,24 @@ public class Server implements Runnable
 				{
 					if (playerList.size() > 1)
 					{
-						send += "200 OK Total number of people logged into server: " + playerList.size() + newline;			
+						send += "CROSBY87 200 OK Total number of people logged into server: " + playerList.size() + newline;
 						send += "Here is a complete list of who is logged in: " + newline;
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							Player temp;
 							temp = playerList.get(i);
-							
+
 							String availability = "available";
 							if (temp.isBusy())
 								availability = "busy";
-							
+
 							send += "\t" + temp.getUserName() + " {status: " + availability + "}" + newline;
-							
-						}			
+
+						}
 					}
 					else
 					{
-						send += "200 OK You are the only person logged in right now." + newline;
+						send += "CROSBY87 200 OK You are the only person logged in right now." + newline;
 					}
 					sendString(send, this.connection);
 				}
@@ -410,8 +410,8 @@ public class Server implements Runnable
 							me = playerList.get(i);
 						}
 					}
-					send += "200 OK I am logged in as: " + me.getUserName();
-					
+					send += "CROSBY87 200 OK I am logged in as: " + me.getUserName();
+
 					if (me.getUserName().compareTo("bayan")==0 || me.getUserName().compareTo("bayan")==0 ||
 							me.getUserName().compareTo("justin")==0)
 					{
@@ -421,19 +421,19 @@ public class Server implements Runnable
 					{
 						send += newline;
 					}
-					
+
 					if (me.isBusy())
 					{
 						send += " I am currently busy in a game." + newline;
 						for (int i = 0; i < gameList.size(); i++)
 						{
-							if (gameList.get(i).getPlayerA().getThreadId() == this.ID || 
+							if (gameList.get(i).getPlayerA().getThreadId() == this.ID ||
 									gameList.get(i).getPlayerB().getThreadId() == this.ID)
 							{
 								myGame = gameList.get(i);
 							}
 						}
-						
+
 						send += "\t" + "I am in game: " + myGame.getID() + newline;
 						if (myGame.getPlayerA().getThreadId() == this.ID)
 							send += "\t" + "I am playing against: " + myGame.getPlayerB().getUserName() + newline;
@@ -448,26 +448,26 @@ public class Server implements Runnable
 					Game game = null;
 					for (int i = 0; i < gameList.size(); i++)
 					{
-						game = gameList.get(i);				
+						game = gameList.get(i);
 						for (int j = 0; j < game.getObservers().size(); j++)
 						{
 							Player temp = null;
 							temp = (Player) game.getObservers().get(i);
-							if ( this.ID == temp.getThreadId() && temp != null ) 
+							if ( this.ID == temp.getThreadId() && temp != null )
 							{
 								observer = true;
-							} 
+							}
 						}
 
-					}						
-					
+					}
+
 					if (observer)
 					{
 						send += " I am observing: " + newline;
 						for (int j = 0; j < gameList.size(); j++)
 						{
 							game = gameList.get(j);
-							
+
 							for (int i = 0; i < game.getObservers().size(); i++)
 							{
 								Player temp = null;
@@ -480,31 +480,31 @@ public class Server implements Runnable
 							}
 						}
 					}
-					
+
 					send += " My unique ID is: " + me.getThreadId() + newline;
 					send += " Remote port is: " + me.getSocket().getLocalPort() + newline;
-					send += " Remote address is: " + me.getSocket().getInetAddress().getHostName() + " {" + 
+					send += " Remote address is: " + me.getSocket().getInetAddress().getHostName() + " {" +
 										me.getSocket().getInetAddress().getHostAddress() + "}" + newline;
 					send += " Local port: " + me.getSocket().getPort() + newline;
 					send += " Local address: " + me.getSocket().getInetAddress().getLocalHost() + newline;
-					
+
 					sendString(send, this.connection);
 				}
 				//games
 				else if (response[0].compareTo("games") == 0  && logged == true)
 				{
 					if(gameList.size() > 0){
-						send += "200 OK Current Games:"+ newline;
+						send += "CROSBY87 200 OK Current Games:"+ newline;
 						for (int i = 0; i < gameList.size(); i++){
 							Game temp;
 							temp = gameList.get(i);
 							send += " Game #" + temp.getID()+" : "+temp.getPlayerA().getUserName() + " vs " + temp.getPlayerB().getUserName() + newline;
 						}
 					}else{
-						send += "200 OK There are currently no games."+ newline;
+						send += "CROSBY87 200 OK There are currently no games."+ newline;
 					}
 					sendString(send, this.connection);
-					
+
 				}
 				//remove
 				else if (response[0].compareTo("remove") == 0  && logged == true)
@@ -512,7 +512,7 @@ public class Server implements Runnable
 					boolean inGame = false;
 					int gameID = 0;
 					Game game = null, chosen = null;
-					
+
 					Player A = null, B = null;
 					//find the game the player is in
 					for (int i = 0; i < gameList.size(); i++)
@@ -541,28 +541,28 @@ public class Server implements Runnable
 					//check if its their turn
 					if ( inGame && (game.getTurn().getThreadId() == this.ID) )
 					{
-						int s = 0, n = 0; 
+						int s = 0, n = 0;
 						boolean validInput = true;
-						
+
 						try
 						{
 							s = Integer.parseInt(response[2]);
 							n = Integer.parseInt(response[1]);
 						}
-						
+
 						catch (NumberFormatException e)
 						{
 							validInput = false;
 						}
-						
-						
+
+
 						//check if valid move
 						if ( validInput && game.isValidMove(n, s) )
 						{
 							String format = newline + " ------------------------" + newline;
 							//valid move, so do it
-							send += "200 OK " + format + game.remove(n, s) + format;
-							
+							send += "CROSBY87 200 OK " + format + game.remove(n, s) + format;
+
 							//if the game is not over, keep going
 							if (!game.gameOver())
 							{
@@ -585,11 +585,11 @@ public class Server implements Runnable
 									Player temp;
 									temp = (Player) game.getObservers().get(i);
 									sendString(send, temp.getSocket());
-								}			
+								}
 								//tell playerA and B
 								sendString(send, A.getSocket());
 								sendString(send, B.getSocket());
-								
+
 								//delete game
 								for (int i = 0; i < gameList.size(); i++)
 								{
@@ -605,13 +605,13 @@ public class Server implements Runnable
 						}
 						else
 						{
-							send += "400 ERROR Invalid move or input, try again." + newline;
+							send += "CROSBY87 400 ERROR Invalid move or input, try again." + newline;
 							sendString(send, this.connection);
-						}					
+						}
 					}
 					else
 					{
-						send += "400 ERROR Hold your 'horses' - You are not in a game, or its not your turn." + newline;
+						send += "CROSBY87 400 ERROR Hold your 'horses' - You are not in a game, or its not your turn." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -635,18 +635,18 @@ public class Server implements Runnable
 					if (rcvr != null)
 					{
 						send = sender + " says: ";
-						
+
 						for (int i = 2; i < response.length; i++)
 						{
 							message += response[i] + " ";
 						}
-						
-						sendString("200 OK " + send + message, rcvr.getSocket());
-						sendString("200 OK Sent to " + rcvr.getUserName() + ": " + message, this.connection);
+
+						sendString("CROSBY87 200 OK " + send + message, rcvr.getSocket());
+						sendString("CROSBY87 200 OK Sent to " + rcvr.getUserName() + ": " + message, this.connection);
 					}
 					else
 					{
-						sendString("400 ERROR User not online." + newline, this.connection);
+						sendString("CROSBY87 400 ERROR User not online." + newline, this.connection);
 					}
 				}
 				else if (response[0].compareTo("bcast") == 0  && logged == true)
@@ -665,26 +665,26 @@ public class Server implements Runnable
 					if (sender.compareTo("bayan") == 0 || sender.compareTo("justin") == 0 || sender.compareTo("april") == 0)
 					{
 						send = response[1] + " says: ";
-						
+
 						for (int i = 2; i < response.length; i++)
 						{
 							message += response[i] + " ";
 						}
-						
+
 						for (int i = 0; i < playerList.size(); i++)
 						{
 							temp = playerList.get(i);
 							if (temp.getThreadId() != this.ID)
 							{
-								sendString("200 OK " + send + message, temp.getSocket());
+								sendString("CROSBY87 200 OK " + send + message, temp.getSocket());
 							}
 						}
-						
-						sendString("200 OK Broadcasted as " + response[1] + ": "+ message, this.connection);
+
+						sendString("CROSBY87 200 OK Broadcasted as " + response[1] + ": "+ message, this.connection);
 					}
 					else
 					{
-						sendString("400 ERROR You can't use this command." + newline, this.connection);
+						sendString("CROSBY87 400 ERROR You can't use this command." + newline, this.connection);
 					}
 				}
 				//secret command
@@ -707,7 +707,7 @@ public class Server implements Runnable
 							inGame = true;
 							A = game.getPlayerA();
 							B = game.getPlayerB();
-							
+
 						}
 						//pretending like i am player A to make life easier
 						else if ( (this.ID == chosen.getPlayerB().getThreadId()) )
@@ -717,28 +717,28 @@ public class Server implements Runnable
 							inGame = true;
 							A = game.getPlayerB();
 							B = game.getPlayerA();
-							
+
 						}
-					}	
-					
-					if ( (inGame && response[1].compareTo("doesnt")==0 && response[2].compareTo("quit")==0) && 
-							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 || 
+					}
+
+					if ( (inGame && response[1].compareTo("doesnt")==0 && response[2].compareTo("quit")==0) &&
+							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 ||
 								A.getUserName().compareTo("april") == 0 ))
 					{
-						send += "200 OK " + A.getUserName() + " automatically wins because crosby is better than you." + newline;
+						send += "CROSBY87 200 OK " + A.getUserName() + " automatically wins because crosby is better than you." + newline;
 						send += "CROSBY. DOESNT. QUIT." + newline;
-						
+
 						//message all observers to say game is now ending
 						for (int i = 0; i < game.getObservers().size(); i++)
 						{
 							Player temp;
 							temp = (Player) game.getObservers().get(i);
 							sendString(send, temp.getSocket());
-						}			
+						}
 						//tell playerA and B
 						sendString(send, A.getSocket());
 						sendString(send, B.getSocket());
-						
+
 						//delete game
 						for (int i = 0; i < gameList.size(); i++)
 						{
@@ -751,16 +751,16 @@ public class Server implements Runnable
 						A.setBusy(false);
 						B.setBusy(false);
 					}
-					else if (inGame && (response[1].compareTo("doesnt")!=0 || response[2].compareTo("quit")!=0) && 
-							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 || 
+					else if (inGame && (response[1].compareTo("doesnt")!=0 || response[2].compareTo("quit")!=0) &&
+							(A.getUserName().compareTo("bayan") == 0 || A.getUserName().compareTo("justin") == 0 ||
 							A.getUserName().compareTo("april") == 0))
 					{
-						send += "200 OK You typed it wrong, try again." + newline;
-						sendString(send, this.connection);						
+						send += "CROSBY87 200 OK You typed it wrong, try again." + newline;
+						sendString(send, this.connection);
 					}
 					else
 					{
-						send += "200 OK You are awesome for trying, but you have to be in a game AND an admin to use this command." + newline;
+						send += "CROSBY87 200 OK You are awesome for trying, but you have to be in a game AND an admin to use this command." + newline;
 						sendString(send, this.connection);
 					}
 				}
@@ -807,23 +807,23 @@ public class Server implements Runnable
 							{
 								observer = true;
 							}
-						} 
+						}
 					}
 
 					//game + observer cleanup
 					if ( inGame && observer )
 					{
 						//game cleanup
-						send += "200 OK " + A.getUserName() + " is quitting the game, game over, " + 
+						send += "CROSBY87 200 OK " + A.getUserName() + " is quitting the game, game over, " +
 							B.getUserName() + " wins!" + newline;
-				
+
 						//message all observers to say game is now ending due to leaver
 						for (int i = 0; i < game.getObservers().size(); i++)
 						{
 							Player temp;
 							temp = (Player) game.getObservers().get(i);
 							sendString(send, temp.getSocket());
-						}			
+						}
 						//tell playerB he won.
 						sendString(send, B.getSocket());
 
@@ -837,13 +837,13 @@ public class Server implements Runnable
 						}
 						//change playerB status to not busy anymore
 						B.setBusy(false);
-						
+
 						//observer cleanup
 						Game games = null;
 						for (int j = 0; j < gameList.size(); j++)
 						{
 							games = gameList.get(j);
-							
+
 							for (int i = 0; i < games.getObservers().size(); i++)
 							{
 								Player temp;
@@ -858,21 +858,20 @@ public class Server implements Runnable
 					//only game cleanup
 					else if ( inGame && !observer)
 					{
-						System.out.println("User requested bye, reached the else if for ingame but not observer");
-						send += "200 OK " + A.getUserName() + " is quitting the game, forfeit, " + 
+						send += "CROSBY87 200 OK " + A.getUserName() + " is quitting the game, forfeit, " +
 							B.getUserName() + " wins!" + newline;
-				
+
 						//message all observers to say game is now ending due to leaver
 						for (int i = 0; i < game.getObservers().size(); i++)
 						{
 							Player temp;
 							temp = (Player) game.getObservers().get(i);
 							sendString(send, temp.getSocket());
-						}			
+						}
 						//tell playerB he won.
 						sendString(send, B.getSocket());
 						//say bye to player A
-												
+
 						//delete game
 						for (int i = 0; i < gameList.size(); i++)
 						{
@@ -891,7 +890,7 @@ public class Server implements Runnable
 						for (int j = 0; j < gameList.size(); j++)
 						{
 							games = gameList.get(j);
-							
+
 							for (int i = 0; i < games.getObservers().size(); i++)
 							{
 								Player temp;
@@ -902,12 +901,12 @@ public class Server implements Runnable
 								}
 							}
 						}
-			
+
 					}
 					//not even in a game or an observer
 					else
 					{
-			
+
 					}
 					//remove player from player list
 					for (int i = 0; i < playerList.size(); i++)
@@ -926,38 +925,38 @@ public class Server implements Runnable
 				}
 				else if (logged == false)
 				{
-					send = "400 ERROR You must login to use any command other then help." + newline;
+					send = "CROSBY87 400 ERROR You must login to use any command other then help." + newline;
 					sendString(send, this.connection);
-				}		
+				}
 				else
 				{
-					send = "400 ERROR " + response[0] + newline;
+					send = "CROSBY87 400 ERROR " + response[0] + newline;
 					sendString(send, this.connection);
-				}		
+				}
 			}
 		}
-		
+
 		catch (Exception e)
 		{
 			//System.out.println(e);
 		}
 	}
-	
+
 	public void sendString(String msg, Socket socket)
 	{
 		//System.out.println("Requested send to socket information to: " + socket.toString());
-	
+
 		PrintWriter out = null;
-		try 
+		try
 		{
 			out = new PrintWriter(socket.getOutputStream(), true);
 			out.println(msg);
 			System.out.println("Message sent to client: " + msg);
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			//e.printStackTrace();
 			System.out.println("Error sending to socket");
-		}	
+		}
 	}
 }
