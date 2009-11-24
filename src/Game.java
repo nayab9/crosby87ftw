@@ -119,6 +119,7 @@ public class Game {
 	public String remove(int n, int s) {
 		StringBuffer buffer = new StringBuffer();
 		String format = newline + " ------------------------" + newline;
+		buffer.append(" Game " + id + ": " + playerA.getUserName() + " vs. " + playerB.getUserName() + newline);
 		buffer.append(" " + turn.getUserName() + " takes " + n + " from set " + s + format);
 
 		items[s-1] -= n;

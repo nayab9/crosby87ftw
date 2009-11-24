@@ -258,7 +258,7 @@ public class Server implements Runnable
 							}
 							if(temp != null && temp2 != null && isObserver){
 								temp.removeObserver(temp2);
-								send += "CROSBY87 200 OK You are no longer observing game: "+temp.getID()+ newline;
+								send += "CROSBY87 200 OK You are no longer observing Game #"+temp.getID()+ newline;
 							}else{
 								send += "CROSBY87 400 ERROR No such game or you are not observing that game."+newline;
 							}
@@ -321,7 +321,7 @@ public class Server implements Runnable
 																&& isObserver == false )
 							{
 								temp.addObserver(temp2);
-								send += "CROSBY87 200 OK You are now an observer of Game : "+temp.getID()+ newline;
+								send += "CROSBY87 200 OK You are now an observer of Game #"+temp.getID()+ newline;
 							}else{
 								send += "CROSBY87 400 ERROR You can't observe that game, either it doesn't exist, you are a player in it, or you are already an observer. "+newline;
 							}
